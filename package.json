@@ -1,0 +1,65 @@
+{
+  "name": "fast-element-typescript-starter",
+  "version": "0.0.1",
+  "source": "src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.module.js",
+  "unpkg": "./dist/index.umd.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.modern.js"
+  },
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "lint": "ts-standard src/ test/ ",
+    "fix": "ts-standard src/ test/ --fix",
+    "test": "yarn fix && tsc -p tsconfig-dev.json && web-test-runner",
+    "test:watch": "web-test-runner --watch",
+    "start": "tsc -p tsconfig-dev.json && web-dev-server",
+    "start:watch": "web-dev-server --watch",
+    "build": "rm -rf dist && microbundle",
+    "build:watch": "yarn build watch",
+    "changelog": "standard-changelog",
+    "deploy": "standard-version",
+    "deploy:beta": "yarn deploy --prerelease beta && yarn push",
+    "deploy:patch": "yarn deploy --release-as patch && yarn push",
+    "deploy:minor": "yarn deploy --release-as minor && yarn push",
+    "deploy:major": "yarn deploy --release-as major && yarn push",
+    "push": "git push --follow-tags origin main && yarn publish",
+    "analyze": "cem analyze"
+  },
+  "dependencies": {
+    "@microsoft/fast-element": "^1.4.0",
+    "hls.js": "^1.0.7"
+  },
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.4.12",
+    "@esm-bundle/chai": "^4.3.0",
+    "@open-wc/testing": "^3.0.0-next.2",
+    "@rollup/plugin-node-resolve": "^13.0.4",
+    "@types/sinon": "^9.0.11",
+    "@types/sinon-chai": "^3.2.5",
+    "@web/dev-server": "^0.1.8",
+    "@web/dev-server-esbuild": "^0.2.11",
+    "@web/rollup-plugin-html": "^1.9.1",
+    "@web/test-runner": "^0.12.15",
+    "@web/test-runner-playwright": "^0.8.4",
+    "microbundle": "^0.13.3",
+    "playwright": "^1.12.2",
+    "sinon": "^9.2.4",
+    "standard-version": "^9.3.0",
+    "ts-standard": "^10.0.0",
+    "typescript": "^4.2.3"
+  },
+  "ts-standard": {
+    "ignore": [
+      "dist"
+    ],
+    "project": "./tsconfig-dev.json"
+  },
+  "customElements": "custom-elements.json"
+}
