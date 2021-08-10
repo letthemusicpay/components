@@ -14,12 +14,14 @@ export class AudioPlaylist extends FASTElement {
   @attr currentTrackTime = 0
   @attr formattedTrackDuration = '--:--'
   @attr formattedTrackTime = '--:--'
-  @attr shuffle = false
-  @attr repeat = false
-  @attr playing = false
-  @attr paused = true
   @attr tabindex = 0
   @attr 'aria-label' = 'audio playlist player'
+
+  @attr({mode: "boolean"}) shuffle = false
+  @attr({mode: "boolean"}) repeat = false
+  @attr({mode: "boolean"}) playing = false
+  @attr({mode: "boolean"}) paused = true
+  @attr({mode: "boolean"}) controls = false
 
   @attr currentTrackTitle!: string
 

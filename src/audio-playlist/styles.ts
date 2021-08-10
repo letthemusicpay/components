@@ -20,11 +20,15 @@ export const styles = css`
     cursor: pointer;
   }
 
+  .audio-playlist__controls {
+    width: 100%;
+  }
+
   .audio-playlist__progress-bar {
     width: 100%;
   }
 
-  .audio-playlist__controls {
+  .audio-playlist__buttons {
     display: flex;
     flex-wrap: wrap;
     align-items: center;

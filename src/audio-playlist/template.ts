@@ -4,21 +4,21 @@ import type { ViewTemplate } from '@microsoft/fast-element'
 import { Icons } from './icons'
 
 export const template: ViewTemplate = html<AudioPlaylist>`
-  <div part="preview" class="audio-playlist__preview" ${ref('timePreview')}>
-  </div>
+  <div class="audio-playlist__controls" ?hidden="${x => !x.controls}">
+    <div part="preview" class="audio-playlist__preview" ${ref('timePreview')}>
+    </div>
 
-  <playlist-progress-bar part="progress-bar" ${ref('progressBar')}
-                         :percentage="${x => x.currentTrackPercentage}"
-                         @pointerenter=${(x, c) => x.handlePointerEnter(c.event as PointerEvent)}
-                         @pointerleave=${(x, c) => x.handlePointerLeave(c.event as PointerEvent)}
-                         @pointerdown=${(x, c) => x.handlePointerDown(c.event as PointerEvent)}
-                         @pointermove=${(x, c) => x.handlePointerMove(c.event as PointerEvent)}
-                         @pointerup=${x => x.handlePointerUp()}
-                         >
-  </playlist-progress-bar>
+    <playlist-progress-bar part="progress-bar" ${ref('progressBar')}
+                          :percentage="${x => x.currentTrackPercentage}"
+                          @pointerenter=${(x, c) => x.handlePointerEnter(c.event as PointerEvent)}
+                          @pointerleave=${(x, c) => x.handlePointerLeave(c.event as PointerEvent)}
+                          @pointerdown=${(x, c) => x.handlePointerDown(c.event as PointerEvent)}
+                          @pointermove=${(x, c) => x.handlePointerMove(c.event as PointerEvent)}
+                          @pointerup=${x => x.handlePointerUp()}
+                          >
+    </playlist-progress-bar>
 
-  <slot name="controls" class="audio-playlist__controls">
-    <slot name="left-controls">
+    <div part="buttons" class="audio-playlist__buttons">
       <div>
         <button title="Previous" @click=${x => x.previous()}>
           ${Icons.previous}
@@ -37,9 +37,7 @@ export const template: ViewTemplate = html<AudioPlaylist>`
           ${Icons.next}
         </button>
       </div>
-    </slot>
 
-    <slot name="track-info" class="audio-playlist__track-info">
       <div class="audio-playlist__track-time">
         <span>
           ${x => x.formattedTrackTime}
@@ -53,9 +51,7 @@ export const template: ViewTemplate = html<AudioPlaylist>`
       <span>
         ${x => x.currentTrackTitle}
       </span>
-    </slot>
 
-    <slot name="right-controls">
       <div>
         <button title="Turn ${x => x.shuffle ? 'off shuffle' : 'on shuffle'}" @click=${x => x.toggleShuffle()}>
           <div ?hidden="${x => !x.shuffle}">
@@ -75,8 +71,8 @@ export const template: ViewTemplate = html<AudioPlaylist>`
           </div>
         </button>
       </div>
-    </slot>
-  </slot>
+    </div>
+  </div>
 
   <slot ${slotted({ property: 'tracks', filter: elements('audio') })}
         @slotchange=${x => {
