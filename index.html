@@ -2,12 +2,17 @@
 <html lang="en">
   <head>
     <script type="module">
+      import Hls from "https://cdn.skypack.dev/hls.js"
       import "./dist/index.modern.js"
+      window.Hls = Hls
+      console.log(Hls)
     </script>
   </head>
 
   <body>
-    <div style="margin: 1rem 0;"></div>
+    <div style="margin: 10rem 0;"></div>
+
+    <div> Regular Audio Player </div>
     <audio-playlist controls>
       <audio title="Bit Bit" src="https://freepd.com/music/Bit%20Bit%20Loop.mp3"></audio>
       <audio title="Fireworks">
@@ -25,6 +30,13 @@
       </audio>
       <audio title="Chronos" src="https://freepd.com/music/Chronos.mp3"></audio>
       <audio title="Space Ambience" src="https://freepd.com/music/Space%20Ambience.mp3"></audio>
+    </audio-playlist>
+
+    <div> HLS Audio Player </div>
+    <audio-playlist controls hls>
+      <audio src="https://multiplatform-f.akamaihd.net/i/multi/april11/sintel/sintel-hd_,512x288_450_b,640x360_700_b,768x432_1000_b,1024x576_1400_m,.mp4.csmil/master.m3u8" title="Sintel" preload="none"></audio>
+      <audio src="https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.m3u8" title="Tear of Steel" preload="none"></audio>
+      <audio src="https://multiplatform-f.akamaihd.net/i/multi/will/bunny/big_buck_bunny_,640x360_400,640x360_700,640x360_1000,950x540_1500,.f4v.csmil/master.m3u8" preload="none" title="Big Buck Bunny"></audio>
     </audio-playlist>
   </body>
 </html>
