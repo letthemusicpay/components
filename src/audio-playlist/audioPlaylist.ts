@@ -2,6 +2,7 @@ import { FASTElement, attr, observable } from '@microsoft/fast-element'
 import { PlaylistProgressBar } from '../playlist-progress-bar/playlistProgressBar'
 import { TrackPlayEvent, TrackPauseEvent, TrackChangeEvent } from '../events'
 import { displayTime } from '../helpers/displayTime'
+import { attachHlsToTracks } from '../helpers/hls'
 
 export class AudioPlaylist extends FASTElement {
   static get tagName (): string {
@@ -15,29 +16,44 @@ export class AudioPlaylist extends FASTElement {
   @attr formattedTrackDuration = '--:--'
   @attr formattedTrackTime = '--:--'
   @attr tabindex = 0
-  @attr 'aria-label' = 'audio playlist player'
+  @attr volume = 0
+  @attr previousVolume = 0
+  @attr 'aria-label' = 'Audio playlist player'
 
   @attr({ mode: 'boolean' }) shuffle = false
   @attr({ mode: 'boolean' }) repeat = false
   @attr({ mode: 'boolean' }) playing = false
   @attr({ mode: 'boolean' }) paused = true
   @attr({ mode: 'boolean' }) controls = false
+  @attr({ mode: 'boolean' }) muted = true
+  @attr({ mode: 'boolean' }) hls = false
 
   @attr currentTrackTitle!: string
 
   @observable tracks: HTMLAudioElement[] = []
-
   @observable pointerIsDown = false
   @observable timePreview!: HTMLElement
   @observable currentTimeElement!: HTMLElement
   @observable progressBar!: PlaylistProgressBar
+  @observable volumeSlider!: HTMLInputElement
 
   readonly boundTick = this.tick.bind(this)
   readonly boundNext = this.next.bind(this)
   readonly boundUpdateInfo = this.updateInfo.bind(this)
+  readonly boundHandleScrubbing = this.handleScrubbing.bind(this)
+  readonly boundHandlePointerUp = this.handlePointerUp.bind(this)
+
+  connectedCallback (): void {
+    super.connectedCallback()
+    document.addEventListener('pointermove', this.boundHandleScrubbing as EventListener)
+    document.addEventListener('pointerup', this.boundHandlePointerUp as EventListener)
+  }
 
   disconnectedCallback (): void {
     super.disconnectedCallback()
+
+    document.removeEventListener('pointermove', this.boundHandleScrubbing as EventListener)
+    document.removeEventListener('pointerup', this.boundHandlePointerUp as EventListener)
 
     this.tracks.forEach((track) => {
       track.removeEventListener('ended', this.boundNext)
@@ -175,6 +191,21 @@ export class AudioPlaylist extends FASTElement {
     }
   }
 
+  toggleMute (event: Event): void {
+    if (event.target === this.volumeSlider) return
+
+    if (this.muted) {
+      this.muted = false
+      let volume = this.previousVolume
+      if (volume <= 0 || isNaN(volume)) volume = 1
+      this.changeVolume(volume)
+    } else {
+      this.muted = true
+      this.volume = 0
+      this.changeVolume(0)
+    }
+  }
+
   updateInfo (): void {
     this.currentTrackTitle = this.currentTrackElement.title
     this.currentTrackDuration = this.currentTrackElement.duration
@@ -209,31 +240,40 @@ export class AudioPlaylist extends FASTElement {
     this.handlePointerLocation(event)
   }
 
-  handlePointerMove (event: PointerEvent): void {
+  handlePointerLeave (event: PointerEvent): void {
+    event.preventDefault()
+
+    if (this.pointerIsDown) return
+
+    if (this.timePreview != null) this.timePreview.hidden = true
+  }
+
+  handleProgressBarHover (event: PointerEvent): void {
     event.preventDefault()
 
     this.displayPreview(event)
+  }
+
+  handleScrubbing (event: PointerEvent): void {
+    event.preventDefault()
 
     // The pointer has to be down for us to register a pointermove
     if (!this.pointerIsDown) {
       return
     }
 
+    this.displayPreview(event)
     this.handlePointerLocation(event)
   }
 
   handlePointerUp (): void {
     this.pointerIsDown = false
+    if (this.timePreview != null) this.timePreview.hidden = true
   }
 
   handlePointerEnter (event: PointerEvent): void {
     event.preventDefault()
     this.displayPreview(event)
-  }
-
-  handlePointerLeave (event: PointerEvent): void {
-    event.preventDefault()
-    this.timePreview.hidden = true
   }
 
   handlePointerLocation (event: PointerEvent): void {
@@ -246,23 +286,65 @@ export class AudioPlaylist extends FASTElement {
     this.currentTrackPercentage = (currentTime / duration) * 100
     this.currentTrackTime = currentTime
     this.updateFormattedTimes()
-    this.pause()
+  }
+
+  changeVolume (volume: number): void {
+    this.volume = volume
+    const value = `${Math.floor(volume * 100)}`
+    if (this.volumeSlider != null) this.volumeSlider.value = value
+
+    if (volume <= 0) {
+      this.muted = true
+      this.currentTrackElement.volume = 0
+      setTimeout(() => {
+        this.tracks.forEach((track) => {
+          track.volume = 0
+          track.muted = true
+        })
+      }, 0)
+    } else {
+      this.previousVolume = volume
+      this.muted = false
+      this.currentTrackElement.volume = volume
+      this.currentTrackElement.muted = false
+      setTimeout(() => {
+        this.tracks.forEach((track) => {
+          track.volume = volume
+          track.muted = false
+        })
+      }, 0)
+    }
+  }
+
+  handleVolumeChange (event: Event): void {
+    event.preventDefault()
+    const volume = parseInt(this.volumeSlider.value) / 100
+    this.changeVolume(volume)
+  }
+
+  handleSlotChange (): void {
+    if (this.hls) attachHlsToTracks(this.tracks)
+    this.addTrackListeners()
+    this.changeVolume(this.volume)
+    this.updateInfo()
   }
 
   displayPreview (event: PointerEvent): void {
     event.preventDefault()
 
     const pointerLocation = this.getPointerLocation(event)
-    const timePreviewWidth = this.timePreview.getBoundingClientRect().width
     const currentTime = this.getTimeAtPointerLocation(pointerLocation)
 
     if (currentTime == null || currentTime < -1 || isNaN(currentTime)) {
       return
     }
 
-    this.timePreview.hidden = false
-    this.timePreview.innerText = displayTime(currentTime)
-    this.timePreview.style.left = `calc(${pointerLocation * 100}% - ${timePreviewWidth / 2}px)`
+    if (this.timePreview != null) {
+      const timePreviewWidth = this.timePreview.getBoundingClientRect().width
+      this.timePreview.hidden = false
+      this.timePreview.innerText = displayTime(currentTime)
+      this.timePreview.style.left = `calc(${pointerLocation * 100}% - ${timePreviewWidth / 2}px)`
+    }
   }
 
   getPointerLocation (event: PointerEvent): number {

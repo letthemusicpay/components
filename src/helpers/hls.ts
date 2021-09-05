@@ -1,20 +1,19 @@
-import Hls from 'hls.js'
-
 export function attachHlsToTracks (tracks: HTMLMediaElement[]): void {
-  tracks.forEach(track => {
-    const src = track.src
+  tracks.forEach((track) => {
+    if (track.dataset.hlsAttached === 'true') return
 
-    if (track.src == null || track.src.trim() === '') return
+    let src = track.src
+    if (src == null) return
+    src = src.trim()
 
-    if (track.canPlayType('application/vnd.apple.mpegurl') !== '') {
-      // Some browers (safari and ie edge) support HLS natively
-      return
-    }
-
-    if (Hls.isSupported()) {
-      const hls = new Hls()
+    // @ts-expect-error
+    if (window.Hls != null && window.Hls.isSupported() === true) {
+      // @ts-expect-error
+      const hls = new window.Hls()
       hls.loadSource(src)
       hls.attachMedia(track)
+
+      track.dataset.hlsAttached = 'true'
       return
     }
 

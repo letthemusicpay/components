@@ -4,6 +4,20 @@ import type { ViewTemplate } from '@microsoft/fast-element'
 import { Icons } from './icons'
 
 export const template: ViewTemplate = html<AudioPlaylist>`
+  ${x => {
+    if (x.controls) return defaultControls()
+    return undefined
+  }}
+  <slot ${slotted({ property: 'tracks', filter: elements('audio') })}
+        @slotchange=${x => x.handleSlotChange()}>
+  </slot>
+
+  <slot name="controls">
+  </slot>
+`
+
+function defaultControls (): ViewTemplate {
+  return (html<AudioPlaylist>`
   <div class="audio-playlist__controls" ?hidden="${x => !x.controls}">
     <div part="preview" class="audio-playlist__preview" ${ref('timePreview')}>
     </div>
@@ -11,14 +25,14 @@ export const template: ViewTemplate = html<AudioPlaylist>`
     <playlist-progress-bar part="progress-bar" ${ref('progressBar')}
                           :percentage="${x => x.currentTrackPercentage}"
                           @pointerenter=${(x, c) => x.handlePointerEnter(c.event as PointerEvent)}
-                          @pointerleave=${(x, c) => x.handlePointerLeave(c.event as PointerEvent)}
                           @pointerdown=${(x, c) => x.handlePointerDown(c.event as PointerEvent)}
-                          @pointermove=${(x, c) => x.handlePointerMove(c.event as PointerEvent)}
+                          @pointermove=${(x, c) => x.handleProgressBarHover(c.event as PointerEvent)}
+                          @pointerleave=${(x, c) => x.handlePointerLeave(c.event as PointerEvent)}
                           @pointerup=${x => x.handlePointerUp()}
                           >
     </playlist-progress-bar>
 
-    <div part="buttons" class="audio-playlist__buttons">
+    <div part="controls" class="audio-playlist__buttons">
       <div>
         <button title="Previous" @click=${x => x.previous()}>
           ${Icons.previous}
@@ -53,11 +67,27 @@ export const template: ViewTemplate = html<AudioPlaylist>`
       </span>
 
       <div>
+        <button class="volume-button" title="Toggle mute" @click=${(x, c) => x.toggleMute(c.event)}>
+          <div class="volume-slider__wrapper">
+            <input class="volume-slider" type="range" min="0" max="100" step="any" value="0"
+                   ${ref('volumeSlider')}
+                   @input=${(x, c) => x.handleVolumeChange(c.event)}>
+          </div>
+
+          <div ?hidden="${x => x.muted}">
+            ${Icons.volume}
+          </div>
+
+          <div ?hidden="${x => !x.muted}">
+            ${Icons.mute}
+          </div>
+        </button>
+
         <button title="Turn ${x => x.shuffle ? 'off shuffle' : 'on shuffle'}" @click=${x => x.toggleShuffle()}>
-          <div ?hidden="${x => !x.shuffle}">
+          <div ?hidden="${x => x.shuffle}">
             ${Icons.order}
           </div>
-          <div ?hidden="${x => x.shuffle}">
+          <div ?hidden="${x => !x.shuffle}">
             ${Icons.shuffle}
           </div>
         </button>
@@ -73,11 +103,5 @@ export const template: ViewTemplate = html<AudioPlaylist>`
       </div>
     </div>
   </div>
-
-  <slot ${slotted({ property: 'tracks', filter: elements('audio') })}
-        @slotchange=${x => {
-          x.addTrackListeners()
-          x.updateInfo()
-        }}>
-  </slot>
-`
+`)
+}
