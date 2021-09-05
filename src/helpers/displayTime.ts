@@ -2,7 +2,7 @@
  * Returns a neatly formatted string for a given number of seconds.
  */
 export function displayTime (seconds: number): string {
-  if (seconds == null || isNaN(seconds) ||seconds < 0) return '0:00'
+  if (seconds == null || isNaN(seconds) || seconds < 0) return '0:00'
 
   const hours = seconds / 3600
   const minutes = (seconds % 3600) / 60
