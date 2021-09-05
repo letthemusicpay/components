@@ -6,6 +6,7 @@ import { Icons } from './icons'
 export const template: ViewTemplate = html<AudioPlaylist>`
   ${x => {
     if (x.controls) return defaultControls()
+    return undefined
   }}
   <slot ${slotted({ property: 'tracks', filter: elements('audio') })}
         @slotchange=${x => x.handleSlotChange()}>

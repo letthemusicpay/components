@@ -18,6 +18,8 @@ customElement({
   template
 })(AudioPlaylist)
 
+export { AudioPlaylist } from './audioPlaylist'
+
 declare global {
   interface HTMLElementTagNameMap {
     'audio-playlist': AudioPlaylist
