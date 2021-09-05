@@ -42,8 +42,11 @@ setup a playlist.
 The `<audio-playlist>` elements has a number of internal methods you can
 use to create your own controls.
 
+#### Usage
 
-#### Options
+```js
+import "@ltmp/components"
+```
 
 ##### Controls
 
