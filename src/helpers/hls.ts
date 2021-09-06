@@ -9,7 +9,7 @@ export function attachHlsToTracks (tracks: HTMLMediaElement[]): void {
     // @ts-expect-error
     if (window.Hls != null && window.Hls.isSupported() === true) {
       // @ts-expect-error
-      const hls = new window.Hls.constructor()
+      const hls = new window.Hls()
       hls.loadSource(src)
       hls.attachMedia(track)
 
