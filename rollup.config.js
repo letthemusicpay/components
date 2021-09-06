@@ -5,4 +5,5 @@ export default {
   input: 'index.html',
   output: { dir: 'demo' },
   plugins: [nodeResolve(), html()],
+  external: ["https://cdn.skypack.dev/hls.js", "Hls"],
 };
