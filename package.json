@@ -7,19 +7,19 @@
   "unpkg": "./dist/index.umd.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.module.js"
+    ".": "./dist/index.modern.js"
   },
-  "type": "module",
   "license": "MIT",
   "files": [
-    "dist/*"
+    "dist",
+    "src"
   ],
   "scripts": {
     "lint": "ts-standard src/ test/ ",
     "fix": "ts-standard src/ test/ --fix",
-    "test": "yarn fix && tsc -p tsconfig-dev.json && web-test-runner",
+    "test": "yarn fix && microbundle && web-test-runner",
     "test:watch": "web-test-runner --watch",
-    "start": "tsc -p tsconfig-dev.json && web-dev-server",
+    "start": "microbundle && web-dev-server",
     "start:watch": "web-dev-server --watch",
     "build": "rm -rf dist && microbundle",
     "build:watch": "yarn build watch",
@@ -39,7 +39,6 @@
     "@custom-elements-manifest/analyzer": "^0.4.12",
     "@esm-bundle/chai": "^4.3.0",
     "@open-wc/testing": "^3.0.0-next.2",
-    "@rollup/plugin-node-resolve": "^13.0.4",
     "@types/sinon": "^9.0.11",
     "@types/sinon-chai": "^3.2.5",
     "@web/dev-server": "^0.1.8",
