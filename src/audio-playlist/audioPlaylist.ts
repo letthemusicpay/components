@@ -280,9 +280,13 @@ export class AudioPlaylist extends FASTElement {
     event.preventDefault()
 
     const pointerLocation = this.getPointerLocation(event)
-    const currentTime = this.getTimeAtPointerLocation(pointerLocation)
-    this.currentTrackElement.currentTime = currentTime
+    let currentTime = this.getTimeAtPointerLocation(pointerLocation)
     const duration = this.currentTrackElement.duration
+
+    if (currentTime < 0) currentTime = 0
+    if (currentTime >= duration) currentTime = duration - 1
+
+    this.currentTrackElement.currentTime = currentTime
     this.currentTrackPercentage = (currentTime / duration) * 100
     this.currentTrackTime = currentTime
     this.updateFormattedTimes()
