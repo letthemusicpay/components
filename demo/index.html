@@ -1,22 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>HTML5 Audio Playlist Web Component</title>
-    <script type="module">
-      import Hls from "https://cdn.skypack.dev/hls.js"
-      window.Hls = Hls
-      console.log(Hls)
-
-      import "./dist/index.modern.js"
-    </script>
+<!DOCTYPE html><html lang="en"><head>
+    
   </head>
 
   <body>
     <div style="margin: 10rem 0;"></div>
 
     <div> Regular Audio Player </div>
-    <audio-playlist controls>
+    <audio-playlist controls="">
       <audio title="Bit Bit" src="https://freepd.com/music/Bit%20Bit%20Loop.mp3"></audio>
       <audio title="Fireworks">
         <source src="https://freepd.com/music/Fireworks.mp3">
@@ -36,10 +26,11 @@
     </audio-playlist>
 
     <div> HLS Audio Player </div>
-    <audio-playlist controls hls>
+    <audio-playlist controls="" hls="">
       <audio src="https://multiplatform-f.akamaihd.net/i/multi/april11/sintel/sintel-hd_,512x288_450_b,640x360_700_b,768x432_1000_b,1024x576_1400_m,.mp4.csmil/master.m3u8" title="Sintel" preload="none"></audio>
       <audio src="https://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.m3u8" title="Tear of Steel" preload="none"></audio>
       <audio src="https://multiplatform-f.akamaihd.net/i/multi/will/bunny/big_buck_bunny_,640x360_400,640x360_700,640x360_1000,950x540_1500,.f4v.csmil/master.m3u8" preload="none" title="Big Buck Bunny"></audio>
     </audio-playlist>
-  </body>
-</html>
+  
+
+<script type="module" src="./inline-module-635a4302fab1c72d8445d15125d8ec7f.js"></script></body></html>
