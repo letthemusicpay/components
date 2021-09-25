@@ -35,20 +35,28 @@ function defaultControls (): ViewTemplate {
     <div part="controls" class="audio-playlist__buttons">
       <div>
         <button title="Previous" @click=${x => x.previous()}>
-          ${Icons.previous}
+          <slot name="previous">
+            ${Icons.previous}
+          </slot>
         </button>
 
         <button title="${x => x.playing ? 'Pause' : 'Play'}" @click=${(x, c) => x.togglePlay(c.event)}>
           <div ?hidden="${x => x.playing}">
-            ${Icons.play}
+            <slot name="play">
+              ${Icons.play}
+            </slot>
           </div>
           <div ?hidden="${x => x.paused}">
-            ${Icons.pause}
+            <slot name="pause">
+              ${Icons.pause}
+            </slot>
           </div>
         </button>
 
         <button title="Next" @click=${x => x.next()}>
-          ${Icons.next}
+          <slot name="next">
+            ${Icons.next}
+          </slot>
         </button>
       </div>
 
@@ -62,42 +70,62 @@ function defaultControls (): ViewTemplate {
         </span>
       </div>
 
-      <span>
-        ${x => x.currentTrackTitle}
-      </span>
+      <div part="track-info" class="track-info">
+        <div class="poster" part="poster">
+          <img part="poster-image" src="${(x) => x.currentTrackPoster ?? ''}">
+        </div>
+
+        <span part="track-title">
+          ${x => x.currentTrackTitle}
+        </span>
+      </div>
 
       <div>
         <button class="volume-button" title="Toggle mute" @click=${(x, c) => x.toggleMute(c.event)}>
           <div class="volume-slider__wrapper">
-            <input class="volume-slider" type="range" min="0" max="100" step="any" value="0"
-                   ${ref('volumeSlider')}
-                   @input=${(x, c) => x.handleVolumeChange(c.event)}>
+            <slot name="volume-slider">
+              <input class="volume-slider" type="range" min="0" max="100" step="any" value="0"
+                    ${ref('volumeSlider')}
+                    @input=${(x, c) => x.handleVolumeChange(c.event)}>
+            </slot>
           </div>
 
           <div ?hidden="${x => x.muted}">
-            ${Icons.volume}
+            <slot name="volume">
+              ${Icons.volume}
+            </slot>
           </div>
 
           <div ?hidden="${x => !x.muted}">
-            ${Icons.mute}
+            <slot name="muted">
+              ${Icons.mute}
+            </slot>
           </div>
         </button>
 
         <button title="Turn ${x => x.shuffle ? 'off shuffle' : 'on shuffle'}" @click=${x => x.toggleShuffle()}>
           <div ?hidden="${x => x.shuffle}">
-            ${Icons.order}
+            <slot name="order">
+              ${Icons.order}
+            </slot>
           </div>
           <div ?hidden="${x => !x.shuffle}">
-            ${Icons.shuffle}
+            <slot name="shuffle">
+              ${Icons.shuffle}
+            </slot>
           </div>
         </button>
 
         <button title="Turn ${x => x.repeat ? 'off repeat' : 'on repeat'}" @click=${x => x.toggleRepeat()}>
           <div ?hidden="${x => !x.repeat}">
-            ${Icons.repeat}
+            <slot name="repeat">
+              ${Icons.repeat}
+            </slot>
           </div>
           <div ?hidden="${x => x.repeat}">
-            ${Icons.dontRepeat}
+            <slot name="no-repeat">
+              ${Icons.dontRepeat}
+            </slot>
           </div>
         </button>
       </div>

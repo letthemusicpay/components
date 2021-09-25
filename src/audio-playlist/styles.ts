@@ -27,6 +27,7 @@ export const styles = css`
 
   .audio-playlist__controls {
     width: 100%;
+    height: 100%;
   }
 
   .audio-playlist__progress-bar {
@@ -37,10 +38,19 @@ export const styles = css`
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     height: 100%;
     width: 100%;
-    padding: 1em;
+    padding: 0 1em;
+  }
+
+  .audio-playlist__buttons > * {
+    margin: 1em auto;
+  }
+
+  .audio-playlist__buttons > *:last-child,
+  .audio-playlist__buttons > *:first-child {
+    margin: 1em 0;
   }
 
   .audio-playlist__preview {
@@ -67,7 +77,7 @@ export const styles = css`
     position: absolute;
     top: -130%;
     left: 45%;
-    padding: 1rem 0.75rem;
+    padding: 2rem 0 2rem 1.5rem;
     transform: rotate(270deg);
     transform-origin: left;
   }
@@ -96,5 +106,27 @@ export const styles = css`
   /* All the same stuff for IE */
   .volume-slider::-ms-thumb {
     ${volumeSliderStyles}
+  }
+
+  .track-info {
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .poster {
+    margin-right: 1rem;
+    height: 100%;
+  }
+
+  .poster > img {
+    border: none;
+    display: block;
+    max-height: 50px;
+    min-width: 50px;
+  }
+
+  .audio-playlist__track-time {
+    padding: 0 1em;
   }
 `

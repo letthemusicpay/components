@@ -13,6 +13,7 @@ export class AudioPlaylist extends FASTElement {
   @attr currentTrackPercentage = 0
   @attr currentTrackDuration = 0
   @attr currentTrackTime = 0
+  @attr currentTrackPoster: string | undefined
   @attr formattedTrackDuration = '--:--'
   @attr formattedTrackTime = '--:--'
   @attr tabindex = 0
@@ -207,6 +208,8 @@ export class AudioPlaylist extends FASTElement {
   }
 
   updateInfo (): void {
+    // @ts-expect-error (poster is non-standard)
+    this.currentTrackPoster = this.currentTrackElement.getAttribute('poster')
     this.currentTrackTitle = this.currentTrackElement.title
     this.currentTrackDuration = this.currentTrackElement.duration
     this.updateFormattedTimes()
@@ -229,7 +232,7 @@ export class AudioPlaylist extends FASTElement {
     const { currentTime, duration } = this.currentTrackElement
     this.currentTrackPercentage = (currentTime / duration) * 100
     this.currentTrackTime = currentTime
-    this.updateInfo()
+    this.updateFormattedTimes()
     window.requestAnimationFrame(this.boundTick)
   }
 
