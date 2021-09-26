@@ -56,14 +56,14 @@ export class AudioPlaylist extends FASTElement {
     document.removeEventListener('pointermove', this.boundHandleScrubbing as EventListener)
     document.removeEventListener('pointerup', this.boundHandlePointerUp as EventListener)
 
-    this.tracks.forEach((track) => {
+    this.tracks?.forEach((track) => {
       track.removeEventListener('ended', this.boundNext)
       track.removeEventListener('loadedmetadata', this.boundUpdateInfo)
     })
   }
 
   addTrackListeners (): void {
-    this.tracks.forEach((track) => {
+    this.tracks?.forEach((track) => {
       track.addEventListener('ended', this.boundNext)
       track.addEventListener('loadedmetadata', this.boundUpdateInfo)
     })
@@ -196,18 +196,16 @@ export class AudioPlaylist extends FASTElement {
     if (event.target === this.volumeSlider) return
 
     if (this.muted) {
-      this.muted = false
       let volume = this.previousVolume
-      if (volume <= 0 || isNaN(volume)) volume = 1
+      if (invalidNumber(volume)) volume = 1
       this.changeVolume(volume)
     } else {
-      this.muted = true
-      this.volume = 0
       this.changeVolume(0)
     }
   }
 
   updateInfo (): void {
+    if (!this.isTrack) return
     // @ts-expect-error (poster is non-standard)
     this.currentTrackPoster = this.currentTrackElement.getAttribute('poster')
     this.currentTrackTitle = this.currentTrackElement.title
@@ -261,9 +259,7 @@ export class AudioPlaylist extends FASTElement {
     event.preventDefault()
 
     // The pointer has to be down for us to register a pointermove
-    if (!this.pointerIsDown) {
-      return
-    }
+    if (!this.pointerIsDown) return
 
     this.displayPreview(event)
     this.handlePointerLocation(event)
@@ -284,15 +280,54 @@ export class AudioPlaylist extends FASTElement {
 
     const pointerLocation = this.getPointerLocation(event)
     let currentTime = this.getTimeAtPointerLocation(pointerLocation)
-    const duration = this.currentTrackElement.duration
+    const duration = this.currentTrackElement?.duration
 
     if (currentTime < 0) currentTime = 0
     if (currentTime >= duration) currentTime = duration - 1
 
-    this.currentTrackElement.currentTime = currentTime
+    if (this.isTrack) {
+      this.currentTrackElement.currentTime = currentTime
+    }
+
     this.currentTrackPercentage = (currentTime / duration) * 100
     this.currentTrackTime = currentTime
     this.updateFormattedTimes()
+  }
+
+  mute (): void {
+    this.muted = true
+
+    if (this.isTrack) {
+      this.currentTrackElement.volume = 0
+      this.currentTrackElement.muted = true
+    }
+
+    window.requestAnimationFrame(() => {
+      this.tracks?.forEach((track) => {
+        track.volume = 0
+        track.muted = true
+      })
+    })
+  }
+
+  unmute (volume: number): void {
+    let vol = volume
+
+    if (invalidNumber(vol)) {
+      vol = 1
+    }
+
+    this.muted = true
+    if (this.isTrack) {
+      this.currentTrackElement.volume = vol
+      this.currentTrackElement.muted = false
+    }
+    window.requestAnimationFrame(() => {
+      this.tracks?.forEach((track) => {
+        track.volume = vol
+        track.muted = false
+      })
+    })
   }
 
   changeVolume (volume: number): void {
@@ -301,25 +336,9 @@ export class AudioPlaylist extends FASTElement {
     if (this.volumeSlider != null) this.volumeSlider.value = value
 
     if (volume <= 0) {
-      this.muted = true
-      this.currentTrackElement.volume = 0
-      setTimeout(() => {
-        this.tracks.forEach((track) => {
-          track.volume = 0
-          track.muted = true
-        })
-      }, 0)
+      this.mute()
     } else {
-      this.previousVolume = volume
-      this.muted = false
-      this.currentTrackElement.volume = volume
-      this.currentTrackElement.muted = false
-      setTimeout(() => {
-        this.tracks.forEach((track) => {
-          track.volume = volume
-          track.muted = false
-        })
-      }, 0)
+      this.unmute(volume)
     }
   }
 
@@ -342,9 +361,7 @@ export class AudioPlaylist extends FASTElement {
     const pointerLocation = this.getPointerLocation(event)
     const currentTime = this.getTimeAtPointerLocation(pointerLocation)
 
-    if (currentTime == null || currentTime < -1 || isNaN(currentTime)) {
-      return
-    }
+    if (invalidNumber(currentTime)) return
 
     if (this.timePreview != null) {
       const timePreviewWidth = this.timePreview.getBoundingClientRect().width
@@ -379,6 +396,7 @@ export class AudioPlaylist extends FASTElement {
   }
 
   updateCurrentTime (currentTime: number): void {
+    if (!this.isTrack) return
     if (!this.withinTrackLimits(currentTime)) {
       return
     }
@@ -417,4 +435,10 @@ export class AudioPlaylist extends FASTElement {
     event.currentTrackNumber = this.currentTrackNumber
     return event
   }
+}
+
+function invalidNumber (num: number): boolean {
+  if (num == null || num < -1 || isNaN(num)) return true
+
+  return false
 }
