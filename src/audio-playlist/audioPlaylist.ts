@@ -159,11 +159,49 @@ export class AudioPlaylist extends FASTElement {
         this.paused = false
         this.tick()
       })
-      .catch((err) => {
-        console.error(err)
-        this.playing = false
-        this.paused = true
-      })
+      .catch((error) => console.error(error))
+  }
+
+  playById (id: string): void {
+    const index = this.tracks.findIndex(el => el.id === id)
+    if (index === -1) {
+      console.error(`Could not play track with an id of: ${id}`)
+      return
+    }
+
+    this.checkTrackChange(index)
+    this.play()
+  }
+
+  playByIndex (num: number): void {
+    const el = this.tracks[num]
+
+    if (el == null) {
+      console.error(`Could not play track number: ${num}`)
+      return
+    }
+
+    this.checkTrackChange(num)
+    this.play()
+  }
+
+  playByTitle (title: string): void {
+    const index = this.tracks.findIndex(el => el.title === title)
+
+    if (index === -1) {
+      console.error(`Could not play track title: ${title}`)
+      return
+    }
+
+    this.checkTrackChange(index)
+    this.play()
+  }
+
+  checkTrackChange (num: number): void {
+    if (this.currentTrackNumber !== num) {
+      this.currentTrackNumber = num
+      this.dispatchEvent(this.trackChangeEvent)
+    }
   }
 
   pause (): void {

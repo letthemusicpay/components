@@ -4,15 +4,15 @@ import type { ViewTemplate } from '@microsoft/fast-element'
 import { Icons } from './icons'
 
 export const template: ViewTemplate = html<AudioPlaylist>`
-  ${x => {
-    if (x.controls) return defaultControls()
-    return undefined
-  }}
-  <slot ${slotted({ property: 'tracks', filter: elements('audio') })}
+  <slot id="audio-playlist-tracks" ${slotted({ property: 'tracks', filter: elements('audio') })}
         @slotchange=${x => x.handleSlotChange()}>
   </slot>
 
   <slot name="controls">
+    ${x => {
+      if (x.controls) return defaultControls()
+      return undefined
+    }}
   </slot>
 `
 
