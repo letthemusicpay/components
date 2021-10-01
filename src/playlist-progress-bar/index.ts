@@ -9,8 +9,8 @@ const template: ViewTemplate = html<PlaylistProgressBar>`
     part="base"
     class="progress-bar__wrapper"
     role="progressbar"
-    aria-valuemin="0"
-    aria-valuemax="100"
+    aria-valuemin="${x => x.min}"
+    aria-valuemax="${x => x.max}"
     aria-valuenow="${x => x.percentage}"
   >
     <div part="progress-bar" class="progress-bar" style="width: ${x => `${x.percentage}%`};">

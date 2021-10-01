@@ -1,23 +1,32 @@
 import { css } from '@microsoft/fast-element'
 
 import { normalize } from '../normalize'
-
-const volumeSliderStyles = `
-  cursor: pointer;
-`
+import { volumeVars, volumeStyles } from './volumeSliderStyles'
 
 export const styles = css`
   ${normalize}
 
   :host {
+    ${volumeVars}
     display: flex;
     position: relative;
     align-items: center;
     flex-direction: column;
     width: 100%;
-    height: 100%;
-    padding: 1em 0;
     outline: none;
+  }
+
+  ${volumeStyles}
+
+  button ::slotted(*) {
+    height: 100%;
+    width: 100%;
+  }
+
+  .buttons {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   playlist-progress-bar::part(base) {
@@ -27,7 +36,6 @@ export const styles = css`
 
   .audio-playlist__controls {
     width: 100%;
-    height: 100%;
   }
 
   .audio-playlist__progress-bar {
@@ -42,6 +50,7 @@ export const styles = css`
     height: 100%;
     width: 100%;
     padding: 0 1em;
+    text-align: center;
   }
 
   .audio-playlist__buttons > * {
@@ -55,9 +64,8 @@ export const styles = css`
 
   .audio-playlist__preview {
     position: absolute;
-    top: 0;
+    top: 2.2em;
     left: 0;
-    transform: translateY(-50%);
   }
 
   .volume-button {
@@ -67,6 +75,9 @@ export const styles = css`
   /* Not 100% accurate, but assume only fine pointing devices can adjust audio.
      This is a way to filter devices that dont support adjusting volume. */
   @media (pointer: fine) {
+    .audio-playlist__preview {
+      top: -1.5em;
+    }
     .volume-button:hover .volume-slider__wrapper {
       display: block;
     }
@@ -75,51 +86,48 @@ export const styles = css`
   .volume-slider__wrapper {
     display: none;
     position: absolute;
-    top: -130%;
+    top: -25%;
     left: 45%;
-    padding: 2rem 0 2rem 1.5rem;
+    padding: 0.5rem 0 0.5rem 1.5rem;
     transform: rotate(270deg);
     transform-origin: left;
   }
 
-  .volume-slider {
-    height: 1rem;
-    width: 6rem;
-    cursor: pointer;
-  }
-
-  .volume-slider::-ms-track {
-    width: 100%;
-    cursor: pointer;
-  }
-
-  /* Special styling for WebKit/Blink */
-  .volume-slider::-webkit-slider-thumb {
-    ${volumeSliderStyles}
-  }
-
-  /* All the same stuff for Firefox */
-  .volume-slider::-moz-range-thumb {
-    ${volumeSliderStyles}
-  }
-
-  /* All the same stuff for IE */
-  .volume-slider::-ms-thumb {
-    ${volumeSliderStyles}
-  }
-
   .track-info {
-    height: 100%;
+    margin: 0.75em auto;
+    width: clamp(125px, 100%, 200px);
     display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .track-info__artist-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .track-info__title,
+  .track-info__artist {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .track-info__artist {
+    padding-bottom: 0.25em;
+  }
+
+  .track-poster {
+    display: flex;
+    justify-content: center;
     align-items: center;
   }
 
   .poster {
-    margin-right: 1rem;
-    height: 100%;
-  }
-
-  .poster > img {
     border: none;
     display: block;
     max-height: 50px;
@@ -127,6 +135,6 @@ export const styles = css`
   }
 
   .audio-playlist__track-time {
-    padding: 0 1em;
+    padding: 0 2em;
   }
 `

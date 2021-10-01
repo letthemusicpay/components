@@ -13,7 +13,8 @@ export class AudioPlaylist extends FASTElement {
   @attr currentTrackPercentage = 0
   @attr currentTrackDuration = 0
   @attr currentTrackTime = 0
-  @attr currentTrackPoster: string | undefined
+  @attr currentTrackPoster: string | undefined | null
+  @attr currentTrackArtist: string | undefined | null
   @attr formattedTrackDuration = '--:--'
   @attr formattedTrackTime = '--:--'
   @attr tabindex = 0
@@ -186,10 +187,14 @@ export class AudioPlaylist extends FASTElement {
   }
 
   playByTitle (title: string): void {
-    const index = this.tracks.findIndex(el => el.title === title)
+    this.playByAttribute('title', title)
+  }
+
+  playByAttribute (attr: string, value: string): void {
+    const index = this.tracks.findIndex(el => el.getAttribute(attr) === value)
 
     if (index === -1) {
-      console.error(`Could not play track title: ${title}`)
+      console.error(`Could not play track ${attr}: ${value}`)
       return
     }
 
@@ -235,17 +240,18 @@ export class AudioPlaylist extends FASTElement {
 
     if (this.muted) {
       let volume = this.previousVolume
-      if (invalidNumber(volume)) volume = 1
-      this.changeVolume(volume)
+      if (invalidNumber(volume) || volume <= 0) volume = 1
+      this.volume = volume
     } else {
-      this.changeVolume(0)
+      this.volume = 0
     }
   }
 
   updateInfo (): void {
     if (!this.isTrack) return
-    // @ts-expect-error (poster is non-standard)
     this.currentTrackPoster = this.currentTrackElement.getAttribute('poster')
+    this.currentTrackArtist = this.currentTrackElement.getAttribute('artist')
+
     this.currentTrackTitle = this.currentTrackElement.title
     this.currentTrackDuration = this.currentTrackElement.duration
     this.updateFormattedTimes()
@@ -351,11 +357,9 @@ export class AudioPlaylist extends FASTElement {
   unmute (volume: number): void {
     let vol = volume
 
-    if (invalidNumber(vol)) {
-      vol = 1
-    }
+    if (invalidNumber(vol)) vol = 1
 
-    this.muted = true
+    this.muted = false
     if (this.isTrack) {
       this.currentTrackElement.volume = vol
       this.currentTrackElement.muted = false
@@ -368,33 +372,40 @@ export class AudioPlaylist extends FASTElement {
     })
   }
 
-  changeVolume (volume: number): void {
-    this.volume = volume
-    const value = `${Math.floor(volume * 100)}`
-    if (this.volumeSlider != null) this.volumeSlider.value = value
+  volumeChanged (oldVolume: number, newVolume: number): void {
+    const value = `${Math.floor(newVolume * 100)}`
+    if (this.volumeSlider != null) {
+      this.volumeSlider.value = value
+      this.volumeSlider.style.setProperty('--progress-percent', value + '%')
+    }
 
-    if (volume <= 0) {
+    if (oldVolume > 0) {
+      this.previousVolume = oldVolume
+    }
+
+    if (newVolume <= 0) {
       this.mute()
     } else {
-      this.unmute(volume)
+      this.unmute(newVolume)
     }
   }
 
   handleVolumeChange (event: Event): void {
     event.preventDefault()
     const volume = parseInt(this.volumeSlider.value) / 100
-    this.changeVolume(volume)
+    this.volume = volume
   }
 
   handleSlotChange (): void {
     if (this.hls) attachHlsToTracks(this.tracks)
     this.addTrackListeners()
-    this.changeVolume(this.volume)
     this.updateInfo()
   }
 
   displayPreview (event: PointerEvent): void {
     event.preventDefault()
+
+    if (this.currentTrackElement == null) return
 
     const pointerLocation = this.getPointerLocation(event)
     const currentTime = this.getTimeAtPointerLocation(pointerLocation)
@@ -450,7 +461,7 @@ export class AudioPlaylist extends FASTElement {
   }
 
   get currentTrackElement (): HTMLMediaElement {
-    return this.tracks[this.currentTrackNumber]
+    return this.tracks?.[this.currentTrackNumber]
   }
 
   get trackPlayEvent (): TrackPlayEvent {

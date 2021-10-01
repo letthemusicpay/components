@@ -1,22 +1,24 @@
 import { css } from '@microsoft/fast-element'
 import { normalize } from '../normalize'
 
+const height = '16px'
+const trackColor = '#e5e7eb'
+const indicatorColor = '#0ea5e9'
+const textColor = 'white'
+
 export const styles = css`
   ${normalize}
 
   :host {
-    --height: 16px;
-    --background-color: #e5e7eb;
-    --progress-color: #0ea5e9;
-    --text-color: white;
     display: block;
     width: 100%;
+    cursor: pointer;
   }
 
   .progress-bar__wrapper {
     position: relative;
-    background-color: var(--background-color);
-    height: var(--height);
+    background-color: var(--track-color, ${trackColor});
+    height: var(--height, ${height});
     border-radius: 9999px;
     overflow: hidden;
   }
@@ -26,10 +28,10 @@ export const styles = css`
     font-family: sans-serif;
     font-size: 12px;
     font-weight: 400;
-    background-color: var(--progress-color);
-    color: var(--text-color);
+    background-color: var(--indicator-color, ${indicatorColor});
+    color: var(--text-color, ${textColor});
     text-align: center;
-    line-height: var(--height);
+    line-height: var(--height, ${height});
     white-space: nowrap;
     overflow: hidden;
     transition: 50ms width, 50ms background-color;

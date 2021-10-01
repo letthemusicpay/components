@@ -8,16 +8,32 @@
       window.Hls = Hls
       console.log(Hls)
 
+      // Use this for deployments.
       import "./dist/components.module.js"
+
+      // Use this for local dev for fast feedback loop
+      // import "./src"
     </script>
   </head>
 
   <body>
     <div style="margin: 10rem 0;"></div>
 
+    <style>
+      audio-playlist::part(volume-slider) {
+        /*
+        --thumb-background: red;
+        --thumb-size: 16px;
+        --track-width: 16px;
+        --track-height: 6rem;
+        --track-color: blue;
+        */
+      }
+    </style>
+
     <div> Regular Audio Player </div>
     <audio-playlist controls>
-      <audio poster="https://via.placeholder.com/512x512" title="Bit Bit" src="https://freepd.com/music/Bit%20Bit%20Loop.mp3"></audio>
+      <audio artist="My Artist" poster="https://via.placeholder.com/512x512" title="Bit Bit" src="https://freepd.com/music/Bit%20Bit%20Loop.mp3"></audio>
       <audio title="Fireworks">
         <source src="https://freepd.com/music/Fireworks.mp3">
       </audio>
