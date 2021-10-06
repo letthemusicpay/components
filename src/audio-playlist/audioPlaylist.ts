@@ -204,6 +204,8 @@ export class AudioPlaylist extends FASTElement {
 
   checkTrackChange (num: number): void {
     if (this.currentTrackNumber !== num) {
+      this.pause()
+      this.rewind()
       this.currentTrackNumber = num
       this.dispatchEvent(this.trackChangeEvent)
     }
