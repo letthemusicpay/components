@@ -13,6 +13,8 @@ export class AudioPlaylist extends FASTElement {
   @attr currentTrackPercentage = 0
   @attr currentTrackDuration = 0
   @attr currentTrackTime = 0
+  @attr currentTrackPoster: string | undefined | null
+  @attr currentTrackArtist: string | undefined | null
   @attr formattedTrackDuration = '--:--'
   @attr formattedTrackTime = '--:--'
   @attr tabindex = 0
@@ -55,14 +57,14 @@ export class AudioPlaylist extends FASTElement {
     document.removeEventListener('pointermove', this.boundHandleScrubbing as EventListener)
     document.removeEventListener('pointerup', this.boundHandlePointerUp as EventListener)
 
-    this.tracks.forEach((track) => {
+    this.tracks?.forEach((track) => {
       track.removeEventListener('ended', this.boundNext)
       track.removeEventListener('loadedmetadata', this.boundUpdateInfo)
     })
   }
 
   addTrackListeners (): void {
-    this.tracks.forEach((track) => {
+    this.tracks?.forEach((track) => {
       track.addEventListener('ended', this.boundNext)
       track.addEventListener('loadedmetadata', this.boundUpdateInfo)
     })
@@ -158,11 +160,55 @@ export class AudioPlaylist extends FASTElement {
         this.paused = false
         this.tick()
       })
-      .catch((err) => {
-        console.error(err)
-        this.playing = false
-        this.paused = true
-      })
+      .catch((error) => console.error(error))
+  }
+
+  playById (id: string): void {
+    const index = this.tracks.findIndex(el => el.id === id)
+    if (index === -1) {
+      console.error(`Could not play track with an id of: ${id}`)
+      return
+    }
+
+    this.checkTrackChange(index)
+    this.play()
+  }
+
+  playByIndex (num: number): void {
+    const el = this.tracks[num]
+
+    if (el == null) {
+      console.error(`Could not play track number: ${num}`)
+      return
+    }
+
+    this.checkTrackChange(num)
+    this.play()
+  }
+
+  playByTitle (title: string): void {
+    this.playByAttribute('title', title)
+  }
+
+  playByAttribute (attr: string, value: string): void {
+    const index = this.tracks.findIndex(el => el.getAttribute(attr) === value)
+
+    if (index === -1) {
+      console.error(`Could not play track ${attr}: ${value}`)
+      return
+    }
+
+    this.checkTrackChange(index)
+    this.play()
+  }
+
+  checkTrackChange (num: number): void {
+    if (this.currentTrackNumber !== num) {
+      this.pause()
+      this.rewind()
+      this.currentTrackNumber = num
+      this.dispatchEvent(this.trackChangeEvent)
+    }
   }
 
   pause (): void {
@@ -195,18 +241,19 @@ export class AudioPlaylist extends FASTElement {
     if (event.target === this.volumeSlider) return
 
     if (this.muted) {
-      this.muted = false
       let volume = this.previousVolume
-      if (volume <= 0 || isNaN(volume)) volume = 1
-      this.changeVolume(volume)
+      if (invalidNumber(volume) || volume <= 0) volume = 1
+      this.volume = volume
     } else {
-      this.muted = true
       this.volume = 0
-      this.changeVolume(0)
     }
   }
 
   updateInfo (): void {
+    if (!this.isTrack) return
+    this.currentTrackPoster = this.currentTrackElement.getAttribute('poster')
+    this.currentTrackArtist = this.currentTrackElement.getAttribute('artist')
+
     this.currentTrackTitle = this.currentTrackElement.title
     this.currentTrackDuration = this.currentTrackElement.duration
     this.updateFormattedTimes()
@@ -229,7 +276,7 @@ export class AudioPlaylist extends FASTElement {
     const { currentTime, duration } = this.currentTrackElement
     this.currentTrackPercentage = (currentTime / duration) * 100
     this.currentTrackTime = currentTime
-    this.updateInfo()
+    this.updateFormattedTimes()
     window.requestAnimationFrame(this.boundTick)
   }
 
@@ -258,9 +305,7 @@ export class AudioPlaylist extends FASTElement {
     event.preventDefault()
 
     // The pointer has to be down for us to register a pointermove
-    if (!this.pointerIsDown) {
-      return
-    }
+    if (!this.pointerIsDown) return
 
     this.displayPreview(event)
     this.handlePointerLocation(event)
@@ -281,67 +326,93 @@ export class AudioPlaylist extends FASTElement {
 
     const pointerLocation = this.getPointerLocation(event)
     let currentTime = this.getTimeAtPointerLocation(pointerLocation)
-    const duration = this.currentTrackElement.duration
+    const duration = this.currentTrackElement?.duration
 
     if (currentTime < 0) currentTime = 0
     if (currentTime >= duration) currentTime = duration - 1
 
-    this.currentTrackElement.currentTime = currentTime
+    if (this.isTrack) {
+      this.currentTrackElement.currentTime = currentTime
+    }
+
     this.currentTrackPercentage = (currentTime / duration) * 100
     this.currentTrackTime = currentTime
     this.updateFormattedTimes()
   }
 
-  changeVolume (volume: number): void {
-    this.volume = volume
-    const value = `${Math.floor(volume * 100)}`
-    if (this.volumeSlider != null) this.volumeSlider.value = value
+  mute (): void {
+    this.muted = true
 
-    if (volume <= 0) {
-      this.muted = true
+    if (this.isTrack) {
       this.currentTrackElement.volume = 0
-      setTimeout(() => {
-        this.tracks.forEach((track) => {
-          track.volume = 0
-          track.muted = true
-        })
-      }, 0)
-    } else {
-      this.previousVolume = volume
-      this.muted = false
-      this.currentTrackElement.volume = volume
+      this.currentTrackElement.muted = true
+    }
+
+    window.requestAnimationFrame(() => {
+      this.tracks?.forEach((track) => {
+        track.volume = 0
+        track.muted = true
+      })
+    })
+  }
+
+  unmute (volume: number): void {
+    let vol = volume
+
+    if (invalidNumber(vol)) vol = 1
+
+    this.muted = false
+    if (this.isTrack) {
+      this.currentTrackElement.volume = vol
       this.currentTrackElement.muted = false
-      setTimeout(() => {
-        this.tracks.forEach((track) => {
-          track.volume = volume
-          track.muted = false
-        })
-      }, 0)
+    }
+    window.requestAnimationFrame(() => {
+      this.tracks?.forEach((track) => {
+        track.volume = vol
+        track.muted = false
+      })
+    })
+  }
+
+  volumeChanged (oldVolume: number, newVolume: number): void {
+    const value = `${Math.floor(newVolume * 100)}`
+    if (this.volumeSlider != null) {
+      this.volumeSlider.value = value
+      this.volumeSlider.style.setProperty('--progress-percent', value + '%')
+    }
+
+    if (oldVolume > 0) {
+      this.previousVolume = oldVolume
+    }
+
+    if (newVolume <= 0) {
+      this.mute()
+    } else {
+      this.unmute(newVolume)
     }
   }
 
   handleVolumeChange (event: Event): void {
     event.preventDefault()
     const volume = parseInt(this.volumeSlider.value) / 100
-    this.changeVolume(volume)
+    this.volume = volume
   }
 
   handleSlotChange (): void {
     if (this.hls) attachHlsToTracks(this.tracks)
     this.addTrackListeners()
-    this.changeVolume(this.volume)
     this.updateInfo()
   }
 
   displayPreview (event: PointerEvent): void {
     event.preventDefault()
 
+    if (this.currentTrackElement == null) return
+
     const pointerLocation = this.getPointerLocation(event)
     const currentTime = this.getTimeAtPointerLocation(pointerLocation)
 
-    if (currentTime == null || currentTime < -1 || isNaN(currentTime)) {
-      return
-    }
+    if (invalidNumber(currentTime)) return
 
     if (this.timePreview != null) {
       const timePreviewWidth = this.timePreview.getBoundingClientRect().width
@@ -376,6 +447,7 @@ export class AudioPlaylist extends FASTElement {
   }
 
   updateCurrentTime (currentTime: number): void {
+    if (!this.isTrack) return
     if (!this.withinTrackLimits(currentTime)) {
       return
     }
@@ -391,7 +463,7 @@ export class AudioPlaylist extends FASTElement {
   }
 
   get currentTrackElement (): HTMLMediaElement {
-    return this.tracks[this.currentTrackNumber]
+    return this.tracks?.[this.currentTrackNumber]
   }
 
   get trackPlayEvent (): TrackPlayEvent {
@@ -414,4 +486,10 @@ export class AudioPlaylist extends FASTElement {
     event.currentTrackNumber = this.currentTrackNumber
     return event
   }
+}
+
+function invalidNumber (num: number): boolean {
+  if (num == null || num < -1 || isNaN(num)) return true
+
+  return false
 }

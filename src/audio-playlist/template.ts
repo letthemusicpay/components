@@ -1,18 +1,18 @@
 import { html, slotted, elements, ref } from '@microsoft/fast-element'
 import type { AudioPlaylist } from './audioPlaylist'
 import type { ViewTemplate } from '@microsoft/fast-element'
-import { Icons } from './icons'
+import * as Icons from './icons'
 
 export const template: ViewTemplate = html<AudioPlaylist>`
-  ${x => {
-    if (x.controls) return defaultControls()
-    return undefined
-  }}
-  <slot ${slotted({ property: 'tracks', filter: elements('audio') })}
+  <slot id="audio-playlist-tracks" ${slotted({ property: 'tracks', filter: elements('audio') })}
         @slotchange=${x => x.handleSlotChange()}>
   </slot>
 
   <slot name="controls">
+    ${x => {
+      if (x.controls) return defaultControls()
+      return undefined
+    }}
   </slot>
 `
 
@@ -33,72 +33,110 @@ function defaultControls (): ViewTemplate {
     </playlist-progress-bar>
 
     <div part="controls" class="audio-playlist__buttons">
-      <div>
-        <button title="Previous" @click=${x => x.previous()}>
-          ${Icons.previous}
+      <div class="buttons" part="left-buttons">
+        <button part="button previous" title="Previous" @click=${x => x.previous()}>
+          <slot name="previous">
+            ${Icons.previous}
+          </slot>
         </button>
 
-        <button title="${x => x.playing ? 'Pause' : 'Play'}" @click=${(x, c) => x.togglePlay(c.event)}>
-          <div ?hidden="${x => x.playing}">
+        <button part="button play" title="Play" ?hidden="${x => x.playing}"
+                @click=${(x, c) => x.togglePlay(c.event)}>
+          <slot name="play">
             ${Icons.play}
-          </div>
-          <div ?hidden="${x => x.paused}">
-            ${Icons.pause}
-          </div>
+          </slot>
         </button>
 
-        <button title="Next" @click=${x => x.next()}>
-          ${Icons.next}
+        <button part="button pause" title="Pause"
+                ?hidden="${x => x.paused}"
+                @click=${(x, c) => x.togglePlay(c.event)}>
+          <slot name="pause">
+            ${Icons.pause}
+          </slot>
+        </button>
+
+        <button part="button next" title="Next" @click=${x => x.next()}>
+          <slot name="next">
+            ${Icons.next}
+          </slot>
         </button>
       </div>
 
-      <div class="audio-playlist__track-time">
-        <span>
+      <div part="track-time" class="audio-playlist__track-time">
+        <span part="current-time">
           ${x => x.formattedTrackTime}
         </span>
         /
-        <span>
+        <span part="duration">
           ${x => x.formattedTrackDuration}
         </span>
       </div>
 
-      <span>
-        ${x => x.currentTrackTitle}
-      </span>
+      <div part="track-poster" class="track-poster" ?hidden=${x => x.currentTrackPoster == null}>
+        <slot name="poster">
+          <img class="poster" part="poster-image" src="${x => x.currentTrackPoster}">
+        </slot>
+      </div>
 
-      <div>
-        <button class="volume-button" title="Toggle mute" @click=${(x, c) => x.toggleMute(c.event)}>
-          <div class="volume-slider__wrapper">
-            <input class="volume-slider" type="range" min="0" max="100" step="any" value="0"
-                   ${ref('volumeSlider')}
-                   @input=${(x, c) => x.handleVolumeChange(c.event)}>
+      <div part="track-info" class="track-info" ?hidden=${x => x.currentTrackArtist == null && x.currentTrackTitle == null}>
+        <slot name="track-info">
+          <div class="track-info__artist-title" part="track-artist-title">
+            <div class="track-info__artist" part="track-artist" ?hidden=${x => x.currentTrackArtist == null}>
+              ${x => x.currentTrackArtist}
+            </div>
+            <div class="track-info__title" part="track-title" ?hidden=${x => x.currentTrackTitle == null}>
+              ${x => x.currentTrackTitle}
+            </div>
+          </div>
+        </slot>
+      </div>
+
+      <div class="buttons" part="right-buttons">
+        <button part="button volume" class="volume-button" title="${x => x.muted ? 'Unmute' : 'Mute'}"
+                @click=${(x, c) => x.toggleMute(c.event)}>
+          <div part="volume-slider-wrapper" class="volume-slider__wrapper">
+            <slot name="volume-slider">
+              <input part="volume-slider" class="volume-slider" type="range" min="0" max="100" step="any" value="0"
+                    ${ref('volumeSlider')}
+                    @input=${(x, c) => x.handleVolumeChange(c.event)}>
+            </slot>
           </div>
 
-          <div ?hidden="${x => x.muted}">
+          <slot name="volume" ?hidden="${x => x.muted}">
             ${Icons.volume}
-          </div>
+          </slot>
 
-          <div ?hidden="${x => !x.muted}">
+          <slot name="muted" ?hidden="${x => !x.muted}">
             ${Icons.mute}
-          </div>
+          </slot>
         </button>
-
-        <button title="Turn ${x => x.shuffle ? 'off shuffle' : 'on shuffle'}" @click=${x => x.toggleShuffle()}>
-          <div ?hidden="${x => x.shuffle}">
-            ${Icons.order}
-          </div>
-          <div ?hidden="${x => !x.shuffle}">
-            ${Icons.shuffle}
-          </div>
-        </button>
-
-        <button title="Turn ${x => x.repeat ? 'off repeat' : 'on repeat'}" @click=${x => x.toggleRepeat()}>
-          <div ?hidden="${x => !x.repeat}">
+        <button part="button repeat" title="Turn ${x => x.repeat ? 'off repeat' : 'on repeat'}"
+                ?hidden="${x => !x.repeat}" @click=${x => x.toggleRepeat()}>
+          <slot name="repeat">
             ${Icons.repeat}
-          </div>
-          <div ?hidden="${x => x.repeat}">
+          </slot>
+        </button>
+
+        <button part="button no-repeat" title="Turn ${x => x.repeat ? 'off repeat' : 'on repeat'}"
+                ?hidden="${x => x.repeat}" @click=${x => x.toggleRepeat()}>
+          <slot name="no-repeat"${x => x.repeat}">
             ${Icons.dontRepeat}
-          </div>
+          </slot>
+        </button>
+        <button ?hidden="${x => x.shuffle}" part="button order"
+                title="Turn ${x => x.shuffle ? 'off shuffle' : 'on shuffle'}"
+                @click=${x => x.toggleShuffle()}>
+          <slot name="order">
+            ${Icons.order}
+          </slot>
+        </button>
+
+        <button ?hidden="${x => !x.shuffle}" part="button shuffle"
+                title="Turn ${x => x.shuffle ? 'off shuffle' : 'on shuffle'}"
+                @click=${x => x.toggleShuffle()}>
+          <slot name="shuffle">
+            ${Icons.shuffle}
+          </slot>
         </button>
       </div>
     </div>
