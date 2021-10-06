@@ -1,6 +1,7 @@
 {
   "name": "@ltmp/components",
   "version": "0.0.1",
+  "public": true,
   "source": "src/components.ts",
   "main": "./dist/components.js",
   "module": "./dist/components.module.js",
