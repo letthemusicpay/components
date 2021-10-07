@@ -64,7 +64,7 @@ export const styles = css`
 
   .audio-playlist__preview {
     position: absolute;
-    top: 2.2em;
+    top: -2.5em;
     left: 0;
   }
 
