@@ -107,6 +107,7 @@ export const styles = css`
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    overflow: hidden;
   }
 
   .track-info__title,
