@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/letthemusicpay/components/compare/v0.0.5...v0.0.6) (2021-10-12)
+
+
+### Bug Fixes
+
+* add advanced error reporting. ([e9a3090](https://github.com/letthemusicpay/components/commit/e9a3090732e005f19c76334a394c9d18b5fadc36))
+* add advanced error reporting. ([c561939](https://github.com/letthemusicpay/components/commit/c5619393ddabcac9e97a38fdb6c3e12c579105c0))
+
 ### [0.0.5](https://github.com/letthemusicpay/components/compare/v0.0.4...v0.0.5) (2021-10-07)
 
 ### [0.0.4](https://github.com/letthemusicpay/components/compare/v0.0.3...v0.0.4) (2021-10-07)
