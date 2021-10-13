@@ -155,7 +155,7 @@ export class AudioPlaylist extends FASTElement {
       if (this.playing) return resolve()
 
       // Just in case hls hasnt happened yet.
-      if (this.hls) {
+      if (this.hls && this.isTrack) {
         attachHlsToTracks([this.currentTrackElement])
       }
 
