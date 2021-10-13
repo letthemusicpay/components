@@ -58,19 +58,19 @@ export class AudioPlaylist extends FASTElement {
     document.removeEventListener('pointerup', this.boundHandlePointerUp as EventListener)
 
     this.tracks?.forEach((track) => {
-      track.removeEventListener('ended', this.boundNext)
+      track.removeEventListener('ended', this.boundNext as EventListener)
       track.removeEventListener('loadedmetadata', this.boundUpdateInfo)
     })
   }
 
   addTrackListeners (): void {
     this.tracks?.forEach((track) => {
-      track.addEventListener('ended', this.boundNext)
+      track.addEventListener('ended', this.boundNext as EventListener)
       track.addEventListener('loadedmetadata', this.boundUpdateInfo)
     })
   }
 
-  previous (): void {
+  async previous (): Promise<void> {
     this.pause()
     this.rewind()
     this.currentTrackNumber -= 1
@@ -81,21 +81,21 @@ export class AudioPlaylist extends FASTElement {
     }
 
     this.dispatchEvent(this.trackChangeEvent)
-    this.play()
+    await this.play()
   }
 
-  next (event?: Event): void {
+  async next (event?: Event): Promise<void> {
     this.pause()
     this.rewind()
 
     if (this.repeat && event?.type === 'ended') {
-      this.play()
+      await this.play()
       return
     }
 
     if (this.shuffle) {
       this.currentTrackNumber = this.randomTrackNumber
-      this.play()
+      await this.play()
       return
     }
 
@@ -111,7 +111,7 @@ export class AudioPlaylist extends FASTElement {
     }
 
     this.dispatchEvent(this.trackChangeEvent)
-    this.play()
+    await this.play()
   }
 
   rewind (): void {
@@ -119,7 +119,7 @@ export class AudioPlaylist extends FASTElement {
     this.currentTrackElement.currentTime = 0
   }
 
-  togglePlay (event: Event): void {
+  async togglePlay (event: Event): Promise<void> {
     if (!this.isTrack) return
     if (event.defaultPrevented) return
 
@@ -128,7 +128,7 @@ export class AudioPlaylist extends FASTElement {
     if (this.playing) {
       this.pause()
     } else {
-      this.play()
+      await this.play()
     }
   }
 
@@ -148,22 +148,48 @@ export class AudioPlaylist extends FASTElement {
     return this.currentTrackElement instanceof HTMLMediaElement
   }
 
-  play (): void {
-    if (!this.isTrack) return
-    if (this.playing) return
+  async play (): Promise<void> {
+    return await new Promise((resolve, reject) => {
+      if (!this.isTrack) return resolve()
 
-    this.dispatchEvent(this.trackPlayEvent)
-    this.updateInfo()
-    this.currentTrackElement.play()
-      .then(() => {
-        this.playing = true
-        this.paused = false
-        this.tick()
-      })
-      .catch((error) => console.error(error))
+      if (this.playing) return resolve()
+
+      // Just in case hls hasnt happened yet.
+      if (this.hls && this.isTrack) {
+        attachHlsToTracks([this.currentTrackElement])
+      }
+
+      this.dispatchEvent(this.trackPlayEvent)
+      this.updateInfo()
+
+      if (invalidNumber(this.previousVolume) || this.previousVolume <= 0) {
+        this.previousVolume = 0.5
+      }
+
+      this.unmute(this.previousVolume)
+      this.currentTrackElement.play()
+        .then(() => {
+          this.playing = true
+          this.paused = false
+          this.tick()
+          resolve()
+        })
+        .catch(() => {
+          this.mute()
+          this.currentTrackElement.play().then(() => {
+            this.playing = true
+            this.paused = false
+            this.tick()
+            resolve()
+          }).catch((err) => {
+            console.error(err)
+            reject(err)
+          })
+        })
+    })
   }
 
-  playById (id: string): void {
+  async playById (id: string): Promise<void> {
     const index = this.tracks.findIndex(el => el.id === id)
     if (index === -1) {
       console.error(`Could not play track with an id of: ${id}`)
@@ -171,10 +197,11 @@ export class AudioPlaylist extends FASTElement {
     }
 
     this.checkTrackChange(index)
-    this.play()
+
+    await this.play()
   }
 
-  playByIndex (num: number): void {
+  async playByIndex (num: number): Promise<void> {
     const el = this.tracks[num]
 
     if (el == null) {
@@ -183,14 +210,15 @@ export class AudioPlaylist extends FASTElement {
     }
 
     this.checkTrackChange(num)
-    this.play()
+
+    await this.play()
   }
 
-  playByTitle (title: string): void {
-    this.playByAttribute('title', title)
+  async playByTitle (title: string): Promise<void> {
+    await this.playByAttribute('title', title)
   }
 
-  playByAttribute (attr: string, value: string): void {
+  async playByAttribute (attr: string, value: string): Promise<void> {
     const index = this.tracks.findIndex(el => el.getAttribute(attr) === value)
 
     if (index === -1) {
@@ -199,7 +227,7 @@ export class AudioPlaylist extends FASTElement {
     }
 
     this.checkTrackChange(index)
-    this.play()
+    await this.play()
   }
 
   checkTrackChange (num: number): void {
@@ -359,9 +387,11 @@ export class AudioPlaylist extends FASTElement {
   unmute (volume: number): void {
     let vol = volume
 
-    if (invalidNumber(vol)) vol = 1
+    if (invalidNumber(vol)) vol = 0.5
 
+    this.volume = volume
     this.muted = false
+
     if (this.isTrack) {
       this.currentTrackElement.volume = vol
       this.currentTrackElement.muted = false
@@ -399,7 +429,13 @@ export class AudioPlaylist extends FASTElement {
   }
 
   handleSlotChange (): void {
-    if (this.hls) attachHlsToTracks(this.tracks)
+    if (this.hls) {
+      if (this.isTrack) {
+        attachHlsToTracks([this.currentTrackElement])
+      }
+      // Attach to the rest of the tracks in the background.
+      setTimeout(() => attachHlsToTracks(this.tracks))
+    }
     this.addTrackListeners()
     this.updateInfo()
   }

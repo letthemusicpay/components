@@ -9,21 +9,25 @@ export function displayTime (seconds: number): string {
 
   const ary = []
 
-  if (hours > 1) ary.push(formatHoursAndMinutes(hours))
+  if (hours >= 1) {
+    ary.push(formatWithoutLeadingZero(hours))
+    ary.push(formatWithLeadingZero(minutes))
+  } else {
+    ary.push(formatWithoutLeadingZero(minutes))
+  }
 
-  ary.push(formatHoursAndMinutes(minutes))
-  ary.push(formatSeconds(seconds % 60))
+  ary.push(formatWithLeadingZero(seconds % 60))
 
   return ary.join(':')
 }
 
-function formatSeconds (val: number): string {
+function formatWithLeadingZero (val: number): string {
   return `0${Math.floor(val)}`.slice(-2)
 }
 
-function formatHoursAndMinutes (val: number): string {
-  if (val > 10) {
-    return formatSeconds(val)
+function formatWithoutLeadingZero (val: number): string {
+  if (val >= 10) {
+    return formatWithLeadingZero(val)
   }
 
   return `${Math.floor(val)}`.slice(-2)

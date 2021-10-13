@@ -16,7 +16,7 @@ const thumbStyles = `
   width: var(--thumb-size);
   border-radius: 50%;
   border: none;
-  outline: 1px solid blue;
+  outline: 1px solid var(--thumb-outline);
   margin-top: calc((var(--thumb-size) / -2 + var(--track-width) / 2) - 1px);
   background-color: var(--thumb-color);
 `
@@ -43,6 +43,7 @@ export const volumeVars = `
   --track-color: lightgray;
   --track-border-color: gray;
 
+  --thumb-outline: dodgerblue;
   --thumb-color: dodgerblue;
   --thumb-size: 16px;
 
