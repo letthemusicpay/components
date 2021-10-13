@@ -430,7 +430,9 @@ export class AudioPlaylist extends FASTElement {
 
   handleSlotChange (): void {
     if (this.hls) {
-      attachHlsToTracks([this.currentTrackElement])
+      if (this.isTrack) {
+        attachHlsToTracks([this.currentTrackElement])
+      }
       // Attach to the rest of the tracks in the background.
       setTimeout(() => attachHlsToTracks(this.tracks))
     }

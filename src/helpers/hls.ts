@@ -17,6 +17,7 @@ interface HlsInstance {
 
 export function attachHlsToTracks (tracks: HTMLMediaElement[]): void {
   tracks.forEach((track) => {
+    if (track == null) return
     if (track.dataset.hlsAttached === 'true') return
 
     let src = track.src
