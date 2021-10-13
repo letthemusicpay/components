@@ -34,14 +34,14 @@ function defaultControls (): ViewTemplate {
 
     <div part="controls" class="audio-playlist__buttons">
       <div class="buttons" part="left-buttons">
-        <button part="button previous" title="Previous" @click=${x => x.previous()}>
+        <button part="button previous" title="Previous" @click=${async x => await x.previous()}>
           <slot name="previous">
             ${Icons.previous}
           </slot>
         </button>
 
         <button part="button play" title="Play" ?hidden="${x => x.playing}"
-                @click=${(x, c) => x.togglePlay(c.event)}>
+                @click=${async (x, c) => await x.togglePlay(c.event)}>
           <slot name="play">
             ${Icons.play}
           </slot>
@@ -49,13 +49,13 @@ function defaultControls (): ViewTemplate {
 
         <button part="button pause" title="Pause"
                 ?hidden="${x => x.paused}"
-                @click=${(x, c) => x.togglePlay(c.event)}>
+                @click=${async (x, c) => await x.togglePlay(c.event)}>
           <slot name="pause">
             ${Icons.pause}
           </slot>
         </button>
 
-        <button part="button next" title="Next" @click=${x => x.next()}>
+        <button part="button next" title="Next" @click=${async x => await x.next()}>
           <slot name="next">
             ${Icons.next}
           </slot>
