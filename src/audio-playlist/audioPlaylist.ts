@@ -280,7 +280,7 @@ export class AudioPlaylist extends FASTElement {
     if (event.target === this.volumeSlider) return
 
     if (this.muted) {
-      let volume = this.previousVolume
+      const volume = this.previousVolume
       this.unmute(volume)
     } else {
       this.mute()
