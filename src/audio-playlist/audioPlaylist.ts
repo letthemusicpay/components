@@ -39,6 +39,7 @@ export class AudioPlaylist extends FASTElement {
   @observable progressBar!: PlaylistProgressBar
   @observable volumeSlider!: HTMLInputElement
 
+  firstPlay = true
   readonly boundTick = this.tick.bind(this)
   readonly boundNext = this.next.bind(this)
   readonly boundUpdateInfo = this.updateInfo.bind(this)
@@ -162,7 +163,7 @@ export class AudioPlaylist extends FASTElement {
       this.dispatchEvent(this.trackPlayEvent)
       this.updateInfo()
 
-      if (invalidNumber(this.previousVolume) || this.previousVolume <= 0) {
+      if (this.firstPlay && (invalidNumber(this.previousVolume) || this.previousVolume <= 0)) {
         this.previousVolume = 0.5
       }
 
@@ -171,6 +172,7 @@ export class AudioPlaylist extends FASTElement {
         .then(() => {
           this.playing = true
           this.paused = false
+          this.firstPlay = false
           this.tick()
           resolve()
         })
@@ -180,6 +182,7 @@ export class AudioPlaylist extends FASTElement {
             this.playing = true
             this.paused = false
             this.tick()
+            this.firstPlay = false
             resolve()
           }).catch((err) => {
             console.error(err)
