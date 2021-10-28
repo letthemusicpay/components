@@ -163,11 +163,14 @@ export class AudioPlaylist extends FASTElement {
       this.dispatchEvent(this.trackPlayEvent)
       this.updateInfo()
 
-      if (this.firstPlay && (invalidNumber(this.previousVolume) || this.previousVolume <= 0)) {
+      if (invalidNumber(this.previousVolume) || this.previousVolume <= 0) {
         this.previousVolume = 0.5
       }
 
-      this.unmute(this.previousVolume)
+      if (this.firstPlay) {
+        this.unmute(this.previousVolume)
+      }
+
       this.currentTrackElement.play()
         .then(() => {
           this.playing = true
@@ -248,7 +251,11 @@ export class AudioPlaylist extends FASTElement {
 
     this.currentTrackElement.pause()
     this.dispatchEvent(this.trackPauseEvent)
-    window.setTimeout(() => this.tracks?.forEach((track) => track.pause()))
+    window.setTimeout(() => {
+      this.tracks?.forEach((track) => {
+        if (track !== this.currentTrackElement) track.pause()
+      })
+    })
     this.paused = true
     this.playing = false
   }
@@ -274,10 +281,9 @@ export class AudioPlaylist extends FASTElement {
 
     if (this.muted) {
       let volume = this.previousVolume
-      if (invalidNumber(volume) || volume <= 0) volume = 1
-      this.volume = volume
+      this.unmute(volume)
     } else {
-      this.volume = 0
+      this.mute()
     }
   }
 
