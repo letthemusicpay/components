@@ -248,7 +248,7 @@ export class AudioPlaylist extends FASTElement {
 
     this.currentTrackElement.pause()
     this.dispatchEvent(this.trackPauseEvent)
-    window.setTimeout(() => this.tracks?.forEach((track) => track.pause())
+    window.setTimeout(() => this.tracks?.forEach((track) => track.pause()))
     this.paused = true
     this.playing = false
   }
