@@ -84,7 +84,7 @@ function defaultControls (): ViewTemplate {
       </slot>
 
       <slot name="track-poster">
-        <div part="track-poster" class="track-poster" ?hidden=${x => x.currentTrackPoster == null}>
+        <div part="track-poster" class="track-poster">
           <slot name="poster">
             <img class="poster" part="poster-image" src="${x => x.currentTrackPoster}">
           </slot>
@@ -92,7 +92,7 @@ function defaultControls (): ViewTemplate {
       </slot>
 
       <slot name="track-info">
-        <div part="track-info" class="track-info" ?hidden=${x => x.currentTrackArtist == null && x.currentTrackTitle == null}>
+        <div part="track-info" class="track-info">
           <slot name="track-info">
             <div class="track-info__artist-title" part="track-artist-title">
               <div class="track-info__artist" part="track-artist" ?hidden=${x => x.currentTrackArtist == null}>

@@ -378,20 +378,21 @@ export class AudioPlaylist extends FASTElement {
     this.updateFormattedTimes()
   }
 
-  mute (): void {
-    this.muted = true
-
+  muteChanged (_oldValue: boolean, isMuted: boolean): void {
     if (this.isTrack) {
-      this.currentTrackElement.volume = 0
-      this.currentTrackElement.muted = true
+      this.currentTrackElement.muted = isMuted
     }
 
-    window.requestAnimationFrame(() => {
+    window.setTimeout(() => {
       this.tracks?.forEach((track) => {
-        track.volume = 0
-        track.muted = true
+        track.muted = isMuted
       })
     })
+  }
+
+  mute (): void {
+    this.muted = true
+    this.volume = 0
   }
 
   unmute (volume: number): void {
@@ -399,19 +400,8 @@ export class AudioPlaylist extends FASTElement {
 
     if (invalidNumber(vol)) vol = 0.5
 
-    this.volume = volume
     this.muted = false
-
-    if (this.isTrack) {
-      this.currentTrackElement.volume = vol
-      this.currentTrackElement.muted = false
-    }
-    window.requestAnimationFrame(() => {
-      this.tracks?.forEach((track) => {
-        track.volume = vol
-        track.muted = false
-      })
-    })
+    this.volume = volume
   }
 
   volumeChanged (oldVolume: number, newVolume: number): void {
@@ -430,6 +420,16 @@ export class AudioPlaylist extends FASTElement {
     } else {
       this.unmute(newVolume)
     }
+
+    if (this.isTrack) {
+      this.currentTrackElement.volume = newVolume
+    }
+
+    window.setTimeout(() => {
+      this.tracks?.forEach((track) => {
+        track.volume = newVolume
+      })
+    })
   }
 
   handleVolumeChange (event: Event): void {
