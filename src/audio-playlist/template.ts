@@ -29,7 +29,6 @@ function defaultControls (): ViewTemplate {
                             :percentage="${x => x.currentTrackPercentage}"
                             @pointerenter=${(x, c) => x.handlePointerEnter(c.event as PointerEvent)}
                             @pointerdown=${(x, c) => x.handlePointerDown(c.event as PointerEvent)}
-                            @pointermove=${(x, c) => x.handleProgressBarHover(c.event as PointerEvent)}
                             @pointerleave=${(x, c) => x.handlePointerLeave(c.event as PointerEvent)}
                             @pointerup=${x => x.handlePointerUp()}
                             >

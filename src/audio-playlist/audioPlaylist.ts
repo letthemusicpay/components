@@ -188,6 +188,7 @@ export class AudioPlaylist extends FASTElement {
             this.firstPlay = false
             resolve()
           }).catch((err) => {
+            this.mute()
             console.error(err)
             reject(err)
           })
@@ -322,6 +323,7 @@ export class AudioPlaylist extends FASTElement {
     event.preventDefault()
 
     this.pointerIsDown = true
+
     this.handlePointerLocation(event)
   }
 
@@ -333,17 +335,14 @@ export class AudioPlaylist extends FASTElement {
     if (this.timePreview != null) this.timePreview.hidden = true
   }
 
-  handleProgressBarHover (event: PointerEvent): void {
-    event.preventDefault()
-
-    this.displayPreview(event)
-  }
-
   handleScrubbing (event: PointerEvent): void {
-    event.preventDefault()
-
     // The pointer has to be down for us to register a pointermove
-    if (!this.pointerIsDown) return
+    if (!this.pointerIsDown) {
+      this.timePreview.hidden = true
+      return
+    }
+
+    event.preventDefault()
 
     this.displayPreview(event)
     this.handlePointerLocation(event)
@@ -351,6 +350,7 @@ export class AudioPlaylist extends FASTElement {
 
   handlePointerUp (): void {
     this.pointerIsDown = false
+
     if (this.timePreview != null) this.timePreview.hidden = true
   }
 
@@ -393,6 +393,16 @@ export class AudioPlaylist extends FASTElement {
   mute (): void {
     this.muted = true
     this.volume = 0
+
+    if (this.isTrack) {
+      this.currentTrackElement.muted = true
+    }
+
+    window.setTimeout(() => {
+      this.tracks?.forEach((track) => {
+        track.muted = true
+      })
+    })
   }
 
   unmute (volume: number): void {
@@ -402,6 +412,18 @@ export class AudioPlaylist extends FASTElement {
 
     this.muted = false
     this.volume = volume
+
+    if (this.isTrack) {
+      this.currentTrackElement.volume = vol
+      this.currentTrackElement.muted = false
+    }
+
+    window.setTimeout(() => {
+      this.tracks?.forEach((track) => {
+        track.volume = vol
+        track.muted = false
+      })
+    })
   }
 
   volumeChanged (oldVolume: number, newVolume: number): void {
