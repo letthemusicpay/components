@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/letthemusicpay/components/compare/v0.0.10...v0.1.0) (2021-11-07)
+
+
+### Bug Fixes
+
+* muting works as expected ([f196214](https://github.com/letthemusicpay/components/commit/f1962146f4dbb023da97cbf53edf91c5da660013))
+
 ### [0.0.10](https://github.com/letthemusicpay/components/compare/v0.0.9...v0.0.10) (2021-10-28)
 
 ### [0.0.9](https://github.com/letthemusicpay/components/compare/v0.0.8...v0.0.9) (2021-10-28)
