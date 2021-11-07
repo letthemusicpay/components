@@ -72,6 +72,7 @@ export class AudioPlaylist extends FASTElement {
   }
 
   clear (): void {
+    this.pause()
     this.tracks.forEach((track) => track.remove())
   }
 
