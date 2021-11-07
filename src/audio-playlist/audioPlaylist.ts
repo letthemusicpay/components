@@ -71,6 +71,10 @@ export class AudioPlaylist extends FASTElement {
     })
   }
 
+  clear (): void {
+    this.tracks.forEach((track) => track.remove())
+  }
+
   async previous (): Promise<void> {
     this.pause()
     this.rewind()
