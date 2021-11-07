@@ -15,6 +15,7 @@ export class AudioPlaylist extends FASTElement {
   @attr currentTrackTime = 0
   @attr currentTrackPoster: string | undefined | null
   @attr currentTrackArtist: string | undefined | null
+  @attr currentTrackTitle: string | undefined | null
   @attr formattedTrackDuration = '--:--'
   @attr formattedTrackTime = '--:--'
   @attr tabindex = 0
@@ -29,8 +30,6 @@ export class AudioPlaylist extends FASTElement {
   @attr({ mode: 'boolean' }) controls = false
   @attr({ mode: 'boolean' }) muted = true
   @attr({ mode: 'boolean' }) hls = false
-
-  @attr currentTrackTitle!: string
 
   @observable tracks: HTMLAudioElement[] = []
   @observable pointerIsDown = false
@@ -69,6 +68,21 @@ export class AudioPlaylist extends FASTElement {
       track.addEventListener('ended', this.boundNext as EventListener)
       track.addEventListener('loadedmetadata', this.boundUpdateInfo)
     })
+  }
+
+  clear (): void {
+    this.pause()
+    this.tracks?.forEach((track) => track.remove())
+    this.mute()
+    this.currentTrackNumber = 0
+    this.currentTrackPercentage = 0
+    this.currentTrackDuration = 0
+    this.currentTrackTime = 0
+    this.currentTrackPoster = undefined
+    this.currentTrackArtist = undefined
+    this.currentTrackTitle = undefined
+    this.formattedTrackDuration = '--:--'
+    this.formattedTrackTime = '--:--'
   }
 
   async previous (): Promise<void> {
@@ -188,6 +202,7 @@ export class AudioPlaylist extends FASTElement {
             this.firstPlay = false
             resolve()
           }).catch((err) => {
+            this.mute()
             console.error(err)
             reject(err)
           })
@@ -322,6 +337,7 @@ export class AudioPlaylist extends FASTElement {
     event.preventDefault()
 
     this.pointerIsDown = true
+
     this.handlePointerLocation(event)
   }
 
@@ -333,17 +349,14 @@ export class AudioPlaylist extends FASTElement {
     if (this.timePreview != null) this.timePreview.hidden = true
   }
 
-  handleProgressBarHover (event: PointerEvent): void {
-    event.preventDefault()
-
-    this.displayPreview(event)
-  }
-
   handleScrubbing (event: PointerEvent): void {
-    event.preventDefault()
-
     // The pointer has to be down for us to register a pointermove
-    if (!this.pointerIsDown) return
+    if (!this.pointerIsDown) {
+      this.timePreview.hidden = true
+      return
+    }
+
+    event.preventDefault()
 
     this.displayPreview(event)
     this.handlePointerLocation(event)
@@ -351,6 +364,7 @@ export class AudioPlaylist extends FASTElement {
 
   handlePointerUp (): void {
     this.pointerIsDown = false
+
     if (this.timePreview != null) this.timePreview.hidden = true
   }
 
@@ -378,17 +392,28 @@ export class AudioPlaylist extends FASTElement {
     this.updateFormattedTimes()
   }
 
+  muteChanged (_oldValue: boolean, isMuted: boolean): void {
+    if (this.isTrack) {
+      this.currentTrackElement.muted = isMuted
+    }
+
+    window.setTimeout(() => {
+      this.tracks?.forEach((track) => {
+        track.muted = isMuted
+      })
+    })
+  }
+
   mute (): void {
     this.muted = true
+    this.volume = 0
 
     if (this.isTrack) {
-      this.currentTrackElement.volume = 0
       this.currentTrackElement.muted = true
     }
 
-    window.requestAnimationFrame(() => {
+    window.setTimeout(() => {
       this.tracks?.forEach((track) => {
-        track.volume = 0
         track.muted = true
       })
     })
@@ -399,14 +424,15 @@ export class AudioPlaylist extends FASTElement {
 
     if (invalidNumber(vol)) vol = 0.5
 
-    this.volume = volume
     this.muted = false
+    this.volume = volume
 
     if (this.isTrack) {
       this.currentTrackElement.volume = vol
       this.currentTrackElement.muted = false
     }
-    window.requestAnimationFrame(() => {
+
+    window.setTimeout(() => {
       this.tracks?.forEach((track) => {
         track.volume = vol
         track.muted = false
@@ -430,6 +456,16 @@ export class AudioPlaylist extends FASTElement {
     } else {
       this.unmute(newVolume)
     }
+
+    if (this.isTrack) {
+      this.currentTrackElement.volume = newVolume
+    }
+
+    window.setTimeout(() => {
+      this.tracks?.forEach((track) => {
+        track.volume = newVolume
+      })
+    })
   }
 
   handleVolumeChange (event: Event): void {
