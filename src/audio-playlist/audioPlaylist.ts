@@ -15,6 +15,7 @@ export class AudioPlaylist extends FASTElement {
   @attr currentTrackTime = 0
   @attr currentTrackPoster: string | undefined | null
   @attr currentTrackArtist: string | undefined | null
+  @attr currentTrackTitle: string | undefined | null
   @attr formattedTrackDuration = '--:--'
   @attr formattedTrackTime = '--:--'
   @attr tabindex = 0
@@ -29,8 +30,6 @@ export class AudioPlaylist extends FASTElement {
   @attr({ mode: 'boolean' }) controls = false
   @attr({ mode: 'boolean' }) muted = true
   @attr({ mode: 'boolean' }) hls = false
-
-  @attr currentTrackTitle!: string
 
   @observable tracks: HTMLAudioElement[] = []
   @observable pointerIsDown = false
@@ -73,7 +72,17 @@ export class AudioPlaylist extends FASTElement {
 
   clear (): void {
     this.pause()
-    this.tracks.forEach((track) => track.remove())
+    this.tracks?.forEach((track) => track.remove())
+    this.mute()
+    this.currentTrackNumber = 0
+    this.currentTrackPercentage = 0
+    this.currentTrackDuration = 0
+    this.currentTrackTime = 0
+    this.currentTrackPoster = undefined
+    this.currentTrackArtist = undefined
+    this.currentTrackTitle = undefined
+    this.formattedTrackDuration = '--:--'
+    this.formattedTrackTime = '--:--'
   }
 
   async previous (): Promise<void> {
