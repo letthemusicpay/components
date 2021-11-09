@@ -85,6 +85,31 @@ export class AudioPlaylist extends FASTElement {
     this.formattedTrackTime = '--:--'
   }
 
+  removeByIndex (index: number): void {
+    const playing = this.playing
+
+    if (index === this.currentTrackNumber) {
+      this.pause()
+
+      if (this.tracks.length <= 1) {
+        this.tracks[index].remove()
+        this.clear()
+      } else if (index >= this.tracks.length - 1) {
+        this.tracks[index].remove()
+        this.previous().then(() => {
+          setTimeout(() => {
+            if (playing) this.play().then(() => {})
+          })
+        })
+      } else {
+        this.tracks[index].remove()
+        setTimeout(() => {
+          if (playing) this.play().then(() => {})
+        })
+      }
+    }
+  }
+
   async previous (): Promise<void> {
     this.pause()
     this.rewind()
