@@ -47,7 +47,7 @@ export function attachHlsToTracks (tracks: HTMLMediaElement[]): void {
 // https://github.com/video-dev/hls.js/blob/master/docs/API.md#hlsrecovermediaerror
 function handleHlsErrors (hlsConstructor: HlsConstructor, hlsInstance: HlsInstance): void {
   hlsInstance.on(hlsConstructor.Events.ERROR, function (_event: unknown, data: Record<string, unknown>) {
-    console.log("Error encountered: ", data)
+    console.log('Error encountered: ', data)
     // if (data.fatal === false) return
 
     switch (data.type) {

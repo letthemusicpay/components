@@ -98,13 +98,13 @@ export class AudioPlaylist extends FASTElement {
         this.tracks[index].remove()
         this.previous().then(() => {
           setTimeout(() => {
-            if (playing) this.play().then(() => {})
+            if (playing) this.play().then(() => {}).catch(catchError)
           })
-        })
+        }).catch(catchError)
       } else {
         this.tracks[index].remove()
         setTimeout(() => {
-          if (playing) this.play().then(() => {})
+          if (playing) this.play().then(() => {}).catch(catchError)
         })
       }
     } else {
@@ -606,4 +606,8 @@ function invalidNumber (num: number): boolean {
   if (num == null || num < -1 || isNaN(num)) return true
 
   return false
+}
+
+function catchError (err: Error): void {
+  console.error(`Encountered the following error: ${JSON.stringify(err)}`)
 }
