@@ -2,10 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### Changes
-- Adds additional slotting for extensibility
-- Adds clear functionality.
-- Various bug fixes.
+## [0.2.0](https://github.com/letthemusicpay/components/compare/v0.1.0...v0.2.0) (2021-11-14)
+
+
+### Features
+
+* add ability to remove tracks ([#8](https://github.com/letthemusicpay/components/issues/8)) ([f8cf06b](https://github.com/letthemusicpay/components/commit/f8cf06bd38749d7df0743f2792ba74f7cadfd388))
 
 ## [0.1.0](https://github.com/letthemusicpay/components/compare/v0.0.10...v0.1.0) (2021-11-07)
 
