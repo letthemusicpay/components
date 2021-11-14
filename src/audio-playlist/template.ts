@@ -94,11 +94,12 @@ function defaultControls (): ViewTemplate {
         <div part="track-info" class="track-info">
           <slot name="track-info">
             <div class="track-info__artist-title" part="track-artist-title">
-              <div class="track-info__artist" part="track-artist" ?hidden=${x => x.currentTrackArtist == null}>
-                ${x => x.currentTrackArtist}
-              </div>
               <div class="track-info__title" part="track-title" ?hidden=${x => x.currentTrackTitle == null}>
                 ${x => x.currentTrackTitle}
+              </div>
+
+              <div class="track-info__artist" part="track-artist" ?hidden=${x => x.currentTrackArtist == null}>
+                ${x => x.currentTrackArtist}
               </div>
             </div>
           </slot>

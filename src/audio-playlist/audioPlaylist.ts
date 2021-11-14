@@ -107,6 +107,13 @@ export class AudioPlaylist extends FASTElement {
           if (playing) this.play().then(() => {})
         })
       }
+    } else {
+      this.currentTrackNumber -= 1
+      this.tracks[index].remove()
+
+      if (this.tracks.length <= 1) {
+        this.clear()
+      }
     }
   }
 
