@@ -48,7 +48,6 @@ export function attachHlsToTracks (tracks: HTMLMediaElement[]): void {
 function handleHlsErrors (hlsConstructor: HlsConstructor, hlsInstance: HlsInstance): void {
   hlsInstance.on(hlsConstructor.Events.ERROR, function (_event: unknown, data: Record<string, unknown>) {
     console.log('Error encountered: ', data)
-    // if (data.fatal === false) return
 
     switch (data.type) {
       case hlsConstructor.ErrorTypes.NETWORK_ERROR:
@@ -61,7 +60,7 @@ function handleHlsErrors (hlsConstructor: HlsConstructor, hlsInstance: HlsInstan
         break
       default:
         // cannot recover
-        if (data.fatal) {
+        if (data.fatal === true) {
           console.error('Fatal error occurred. Unable to recover.')
           console.error(data)
           hlsInstance.destroy()
