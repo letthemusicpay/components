@@ -51,11 +51,15 @@ function handleHlsErrors (hlsConstructor: HlsConstructor, hlsInstance: HlsInstan
 
     switch (data.type) {
       case hlsConstructor.ErrorTypes.NETWORK_ERROR:
-        console.log('fatal network error encountered, attempting to recover...')
+        console.log('network error encountered, attempting to recover...')
         hlsInstance.startLoad()
         break
       case hlsConstructor.ErrorTypes.MEDIA_ERROR:
-        console.log('fatal media error encountered, attempting to recover...')
+        console.log('media error encountered, attempting to recover...')
+
+        // Attempting to recover on bufferStalls seems to just not work.
+        if (data.details === 'bufferStalledError') return
+
         hlsInstance.recoverMediaError()
         break
       default:
