@@ -378,13 +378,13 @@ export class AudioPlaylist extends FASTElement {
 
     if (this.pointerIsDown) return
 
-    if (this.timePreview != null) this.timePreview.hidden = true
+    hideTimePreview(this.timePreview)
   }
 
   handleScrubbing (event: PointerEvent): void {
     // The pointer has to be down for us to register a pointermove
     if (!this.pointerIsDown) {
-      this.timePreview.hidden = true
+      hideTimePreview(this.timePreview)
       return
     }
 
@@ -397,7 +397,7 @@ export class AudioPlaylist extends FASTElement {
   handlePointerUp (): void {
     this.pointerIsDown = false
 
-    if (this.timePreview != null) this.timePreview.hidden = true
+    hideTimePreview(this.timePreview)
   }
 
   handlePointerEnter (event: PointerEvent): void {
@@ -610,4 +610,8 @@ function invalidNumber (num: number): boolean {
 
 function catchError (err: Error): void {
   console.error(`Encountered the following error: ${JSON.stringify(err)}`)
+}
+
+function hideTimePreview (timePreview: HTMLElement): void {
+  if (timePreview != null) timePreview.hidden = true
 }
