@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/letthemusicpay/components/compare/v0.2.0...v0.2.1) (2021-11-23)
+
+
+### Bug Fixes
+
+* dont attempt to recover bufferStall errors ([#9](https://github.com/letthemusicpay/components/issues/9)) ([69ba141](https://github.com/letthemusicpay/components/commit/69ba141a7bfecbb595efb6e4583924e30241e69d))
+
 ## [0.2.0](https://github.com/letthemusicpay/components/compare/v0.1.0...v0.2.0) (2021-11-14)
 
 
