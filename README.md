@@ -1,36 +1,37 @@
 # Purpose
 
-A reusable template for getting started with Microsoft's FAST Element
-web component library.
+A collection of web components used by
+[RCRDSHP](https://app.rcrdshp.com/) to enable better user
+experience.
 
-## What's included?
+## Current Elements:
 
-- Typescript setup
-- Web-dev-server
-- Web-test-runner
-- Initial structure
-- Example counter component with tests.
-- Changelog generation with `standard-changelog`
-- Linting with `ts-standard`
-- [Custom Elements manifest generation](https://custom-elements-manifest.open-wc.org/analyzer/getting-started/)
+- `<audio-playlist>`
 
-## Getting started
+## Installation
 
-Click the `clone from template` button on Github.
+```js
+npm install @ltmp/components
 
-Then, in your new repo do the following:
+# OR
 
-```bash
-yarn install
-yarn start
+yarn add @ltmp/components
 ```
 
-Navigate to `localhost:8000` and find the magic of the counter
-component.
+Then in your entrypoint file:
 
-## Moving forward
+```js
+import "@ltmp/components"
+```
 
-Check out the `package.json` for all possible scripts.
+Or if you want to cherrypick:
+
+```js
+import "@ltmp/components/dist/components/audio-playlist.js"
+```
+
+LTMP components are self-executing so they will register
+for you.
 
 ## Documentation
 
@@ -41,12 +42,6 @@ setup a playlist.
 
 The `<audio-playlist>` elements has a number of internal methods you can
 use to create your own controls.
-
-#### Usage
-
-```js
-import "@ltmp/components"
-```
 
 ##### Controls
 
