@@ -20,7 +20,7 @@ export function attachHlsToTracks (tracks: HTMLMediaElement[]): void {
     if (track == null) return
     if (track.dataset.hlsAttached === 'true') return
 
-    let src = track.src
+    let src = track.dataset.src
     if (src == null) return
     src = src.trim()
 
