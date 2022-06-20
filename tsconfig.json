@@ -11,7 +11,7 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "noEmit": false,
-    "outDir": "./dist",
+    "outDir": "./dist/components",
     "sourceMap": true,
     "strict": true,
     "target": "ES2017",
