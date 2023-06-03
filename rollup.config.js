@@ -22,6 +22,13 @@ export default [
         file: "dist/components.module.js",
         format: "es",
         sourcemap: true,
+      },
+      {
+        dir: "dist/components",
+        format: "es",
+        sourcemap: true,
+        preserveModules: true,
+        preserveModulesRoot: "src"
       }
     ],
     plugins: basePlugins()
